@@ -1,5 +1,9 @@
 
 using BikeRental_System3.Data;
+using BikeRental_System3.IRepository;
+using BikeRental_System3.IService;
+using BikeRental_System3.Repository;
+using BikeRental_System3.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental_System3
@@ -17,6 +21,8 @@ namespace BikeRental_System3
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddScoped<IBikeRepository, BikeRepository>();
+            builder.Services.AddScoped<IBikeService, BikeService>();
 
             var app = builder.Build();
 
