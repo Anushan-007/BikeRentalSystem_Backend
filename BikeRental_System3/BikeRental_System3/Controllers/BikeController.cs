@@ -1,4 +1,5 @@
-﻿using BikeRental_System3.IService;
+﻿using BikeRental_System3.DTOs.Request;
+using BikeRental_System3.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,5 +15,13 @@ namespace BikeRental_System3.Controllers
         {
             _bikeService = bikeService;
         }
+
+        [HttpPost("BikeAdd")]
+        public async Task<IActionResult> AddBike(BikeRequest bikeRequest)
+        {
+            var data = await _bikeService.AddBike(bikeRequest);
+            return Ok(data);
+        }
+
     }
 }
