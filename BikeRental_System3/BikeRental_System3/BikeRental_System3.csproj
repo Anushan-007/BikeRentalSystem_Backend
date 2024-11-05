@@ -16,12 +16,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="IRepository\" />
-    <Folder Include="IService\" />
-    <Folder Include="Repository\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
