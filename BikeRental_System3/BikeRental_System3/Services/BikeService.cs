@@ -56,7 +56,12 @@ namespace BikeRental_System3.Services
         public async Task<BikeResponse> GetBikeById(int Id)
         {
                 var data = await _bikeRepository.GetBikeById(Id);
-                var res = new BikeResponse
+                if (data == null)
+                {
+                    throw new NotFoundException($"Bike with ID {Id} was not found.");
+                }
+
+            var res = new BikeResponse
                 {
                     Id = data.Id,
                     Brand = data.Brand,
@@ -75,7 +80,13 @@ namespace BikeRental_System3.Services
             get.Model = bikeRequest.Model;
             get.RatePerHour = bikeRequest.RatePerHour;
 
+            if (get == null)
+            {
+                throw new NotFoundException($"Bike with ID {Id} was not found.");
+            }
+
             var data = await _bikeRepository.UpdateBike(get);
+
             var res = new BikeResponse
             {
                 Brand = data.Brand,
@@ -89,13 +100,12 @@ namespace BikeRental_System3.Services
         public async Task<string> DeleteBike(int Id)
         {
             var get = await _bikeRepository.GetBikeById(Id);
-           var data = await _bikeRepository.DeleteBike(get);
-
-            if (data == null)
+            if (get == null)
             {
                 throw new NotFoundException($"Bike with ID {Id} was not found.");
             }
-         
+
+            var data = await _bikeRepository.DeleteBike(get);
             return "Successfully Deleted";
         }
 
