@@ -42,7 +42,7 @@ namespace BikeRental_System3.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -56,7 +56,7 @@ namespace BikeRental_System3.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
            
         }
@@ -70,7 +70,7 @@ namespace BikeRental_System3.Controllers
                 return Ok(data);
             }catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -83,7 +83,7 @@ namespace BikeRental_System3.Controllers
                 return Ok(data);
             }catch(Exception ex)
             {
-                throw new Exception(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 

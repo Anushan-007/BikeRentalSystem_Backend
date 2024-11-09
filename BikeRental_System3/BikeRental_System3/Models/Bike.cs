@@ -14,5 +14,6 @@ namespace BikeRental_System3.Models
         public ICollection<Image>? Images { get; set; }
         public ICollection<Inventory>? Inventory { get; set; }
         public ICollection<RentalRequest>? RentalRequests { get; set; }
+      
     }
 }
