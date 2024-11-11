@@ -5,6 +5,8 @@ using BikeRental_System3.IService;
 using BikeRental_System3.Repository;
 using BikeRental_System3.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace BikeRental_System3
 {
@@ -28,6 +30,14 @@ namespace BikeRental_System3
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
 
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
+            builder.Services.AddAuthentication()
+                .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = key,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                });
 
             builder.Services.AddCors(options =>
             {
