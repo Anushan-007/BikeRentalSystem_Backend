@@ -47,7 +47,7 @@ namespace BikeRental_System3.Controllers
         }
 
         [HttpGet("GetBikeById")]
-        public async Task<IActionResult> GetBikeById(int Id)
+        public async Task<IActionResult> GetBikeById(Guid Id)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace BikeRental_System3.Controllers
         }
 
         [HttpPut("UpdateBike")]
-        public async Task<IActionResult> UpdateBike(int Id, BikeRequest bikeRequest)
+        public async Task<IActionResult> UpdateBike(Guid Id, BikeRequest bikeRequest)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace BikeRental_System3.Controllers
         }
 
         [HttpDelete("DeleteBike")]
-        public async Task<IActionResult> DeleteBike(int Id)
+        public async Task<IActionResult> DeleteBike(Guid Id)
         {
             try
             {

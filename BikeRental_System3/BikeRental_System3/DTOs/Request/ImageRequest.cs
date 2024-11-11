@@ -2,8 +2,8 @@
 {
     public class ImageRequest
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string ImagePath { get; set; }
-        public int BikeId { get; set; }
+        public Guid BikeId { get; set; }
     }
 }

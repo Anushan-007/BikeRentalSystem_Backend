@@ -18,7 +18,7 @@ namespace BikeRental_System3.Repository
         {
             var data = await _context.AddAsync(bike);
             await _context.SaveChangesAsync();
-            return bike;
+            return data.Entity;
         }
 
         public async Task<List<Bike>> GetAllBikes()
@@ -27,7 +27,7 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
-        public async Task<Bike> GetBikeById(int Id)
+        public async Task<Bike> GetBikeById(Guid Id)
         {
             var data = await _context.Bikes.FirstOrDefaultAsync(b => b.Id == Id);
             if (data == null)

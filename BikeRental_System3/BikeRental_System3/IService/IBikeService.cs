@@ -8,8 +8,8 @@ namespace BikeRental_System3.IService
     {
         Task<BikeResponse> AddBike(BikeRequest bikeRequest);
         Task<List<BikeResponse>> GetAllBikes();
-        Task<BikeResponse> GetBikeById(int Id);
-        Task<BikeResponse> UpdateBike(int Id, BikeRequest bikeRequest);
-        Task<string> DeleteBike(int Id);
+        Task<BikeResponse> GetBikeById(Guid Id);
+        Task<BikeResponse> UpdateBike(Guid Id, BikeRequest bikeRequest);
+        Task<string> DeleteBike(Guid Id);
     }
 }

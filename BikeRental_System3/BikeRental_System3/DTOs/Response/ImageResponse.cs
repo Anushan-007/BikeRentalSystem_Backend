@@ -3,6 +3,6 @@
     public class ImageResponse
     {
         public string ImagePath { get; set; }
-        public int BikeId { get; set; }
+        public Guid BikeId { get; set; }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241105101943_EntityAdded1")]
-    partial class EntityAdded1
+    [Migration("20241111075412_userBlockNullAdded")]
+    partial class userBlockNullAdded
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,9 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.Bike", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Brand")
                         .IsRequired()
@@ -55,14 +53,12 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.Image", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BikeId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BikeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -83,8 +79,8 @@ namespace BikeRental_System3.Migrations
                     b.Property<bool>("Availability")
                         .HasColumnType("bit");
 
-                    b.Property<int>("BikeId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BikeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
@@ -104,11 +100,9 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRecord", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("Payment")
                         .HasColumnType("decimal(18,2)");
@@ -119,8 +113,8 @@ namespace BikeRental_System3.Migrations
                     b.Property<DateTime?>("RentalOut")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RentalRequestId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RentalRequestId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("RentalReturn")
                         .HasColumnType("datetime2");
@@ -137,14 +131,15 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRequest", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("BikeId")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("BikeId1")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("NicNumber")
                         .IsRequired()
@@ -161,7 +156,7 @@ namespace BikeRental_System3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BikeId");
+                    b.HasIndex("BikeId1");
 
                     b.HasIndex("NicNumber");
 
@@ -192,14 +187,14 @@ namespace BikeRental_System3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsBlocked")
+                    b.Property<bool?>("IsBlocked")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -261,9 +256,7 @@ namespace BikeRental_System3.Migrations
                 {
                     b.HasOne("BikeRental_System3.Models.Bike", "Bike")
                         .WithMany("RentalRequests")
-                        .HasForeignKey("BikeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BikeId1");
 
                     b.HasOne("BikeRental_System3.Models.User", "User")
                         .WithMany("RentalRequest")

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BikeRental_System3.Migrations
 {
     /// <inheritdoc />
-    public partial class EntityAdded1 : Migration
+    public partial class test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +15,7 @@ namespace BikeRental_System3.Migrations
                 name: "Bikes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -37,7 +36,7 @@ namespace BikeRental_System3.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContactNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     roles = table.Column<int>(type: "int", nullable: false),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
@@ -53,10 +52,9 @@ namespace BikeRental_System3.Migrations
                 name: "Images",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BikeId = table.Column<int>(type: "int", nullable: false)
+                    BikeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,7 +76,7 @@ namespace BikeRental_System3.Migrations
                     Availability = table.Column<bool>(type: "bit", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    BikeId = table.Column<int>(type: "int", nullable: false)
+                    BikeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -95,23 +93,22 @@ namespace BikeRental_System3.Migrations
                 name: "RentalRequests",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     BikeId = table.Column<int>(type: "int", nullable: false),
                     UserAlert = table.Column<bool>(type: "bit", nullable: true),
-                    NicNumber = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    NicNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BikeId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RentalRequests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RentalRequests_Bikes_BikeId",
-                        column: x => x.BikeId,
+                        name: "FK_RentalRequests_Bikes_BikeId1",
+                        column: x => x.BikeId1,
                         principalTable: "Bikes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_RentalRequests_Users_NicNumber",
                         column: x => x.NicNumber,
@@ -124,12 +121,11 @@ namespace BikeRental_System3.Migrations
                 name: "RentalRecords",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RentalOut = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RentalReturn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Payment = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RentalRequestId = table.Column<int>(type: "int", nullable: false),
+                    RentalRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RegistrationNumber = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -170,9 +166,9 @@ namespace BikeRental_System3.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RentalRequests_BikeId",
+                name: "IX_RentalRequests_BikeId1",
                 table: "RentalRequests",
-                column: "BikeId");
+                column: "BikeId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RentalRequests_NicNumber",

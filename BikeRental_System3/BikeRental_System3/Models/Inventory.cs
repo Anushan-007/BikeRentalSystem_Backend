@@ -10,7 +10,7 @@ namespace BikeRental_System3.Models
         public bool Availability { get; set; }
         public DateTime DateAdded { get; set; }
         public bool IsDeleted { get; set; }
-        public int BikeId { get; set; }
+        public Guid BikeId { get; set; }
         public Bike? Bike { get; set; }
         public ICollection<RentalRecord>? RentalRecords { get; set; }
 
