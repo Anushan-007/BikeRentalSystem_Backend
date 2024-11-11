@@ -21,8 +21,23 @@ namespace BikeRental_System3
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddScoped<IBikeRepository, BikeRepository>();
             builder.Services.AddScoped<IBikeService, BikeService>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "CORSOpenPolicy",
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
+
+                                  });
+            });
 
             var app = builder.Build();
 
@@ -33,6 +48,7 @@ namespace BikeRental_System3
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("CORSOpenPolicy");
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

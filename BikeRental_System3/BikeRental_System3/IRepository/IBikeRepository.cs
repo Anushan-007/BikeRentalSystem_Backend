@@ -6,7 +6,7 @@ namespace BikeRental_System3.IRepository
     {
          Task<Bike> AddBike(Bike bike);
         Task<List<Bike>> GetAllBikes();
-        Task<Bike> GetBikeById(int Id);
+        Task<Bike> GetBikeById(Guid Id);
         Task<Bike> UpdateBike(Bike bike);
         Task<string> DeleteBike(Bike bike);
 

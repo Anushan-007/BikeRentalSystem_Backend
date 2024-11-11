@@ -53,7 +53,7 @@ namespace BikeRental_System3.Services
             return list;
         }
 
-        public async Task<BikeResponse> GetBikeById(int Id)
+        public async Task<BikeResponse> GetBikeById(Guid Id)
         {
                 var data = await _bikeRepository.GetBikeById(Id);
                 if (data == null)
@@ -72,7 +72,7 @@ namespace BikeRental_System3.Services
                 return res;
         }
 
-        public async Task<BikeResponse> UpdateBike(int Id, BikeRequest bikeRequest)
+        public async Task<BikeResponse> UpdateBike(Guid Id, BikeRequest bikeRequest)
         {
             var get = await _bikeRepository.GetBikeById(Id);
             get.Brand = bikeRequest.Brand;
@@ -97,7 +97,7 @@ namespace BikeRental_System3.Services
             return res;
         }
 
-        public async Task<string> DeleteBike(int Id)
+        public async Task<string> DeleteBike(Guid Id)
         {
             var get = await _bikeRepository.GetBikeById(Id);
             if (get == null)

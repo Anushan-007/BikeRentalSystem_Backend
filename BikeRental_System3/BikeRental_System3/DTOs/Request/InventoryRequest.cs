@@ -7,6 +7,6 @@
         public bool Availability { get; set; }
         public DateTime DateAdded { get; set; }
         public bool IsDeleted { get; set; }
-        public int BikeId { get; set; }
+        public Guid BikeId { get; set; }
     }
 }

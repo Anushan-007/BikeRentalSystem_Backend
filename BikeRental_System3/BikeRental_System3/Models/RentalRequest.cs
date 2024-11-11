@@ -5,7 +5,7 @@ namespace BikeRental_System3.Models
     public class RentalRequest
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime RequestTime { get; set; }
         public Status Status { get; set; }
         public int BikeId { get; set; }
