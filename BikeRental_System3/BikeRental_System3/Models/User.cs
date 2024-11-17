@@ -17,7 +17,7 @@ namespace BikeRental_System3.Models
         public Roles roles { get; set; }
         public bool? IsBlocked { get; set; } = false;
         public string UserName { get; set; }
-        public string? ProfileImage {  get; set; }
+        public string? ProfileImage {  get; set; } 
         public ICollection<RentalRequest>? RentalRequest { get; set; }
     }
 }
