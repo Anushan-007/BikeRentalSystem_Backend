@@ -96,7 +96,7 @@ namespace BikeRental_System3.Services
             claimList.Add(new Claim("roles", user.roles.ToString()));
             claimList.Add(new Claim("IsBlocked", user.IsBlocked.ToString()));
             claimList.Add(new Claim("UserName", user.UserName));
-            claimList.Add(new Claim("ProfileImage", user.ProfileImage.ToString()));
+            //claimList.Add(new Claim("ProfileImage", user.ProfileImage.ToString()));
 
             var Key = _configuration["Jwt:Key"];
             var secKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Key));
