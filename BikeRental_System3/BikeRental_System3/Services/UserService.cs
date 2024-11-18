@@ -116,5 +116,101 @@ namespace BikeRental_System3.Services
 
         }
 
+
+        public async Task<List<UserResponse>> GetAllUsers()
+        {
+            var data = await _userRepository.GetAllUsers();
+            var list = data.Select(x => new UserResponse
+            {
+                NicNumber=x.NicNumber,
+                FirstName=x.FirstName,
+                LastName=x.LastName,
+                Email=x.Email,
+                ContactNo=x.ContactNo,
+                Address=x.Address,
+                roles=x.roles,
+                UserName=x.UserName,
+                ProfileImage=x.ProfileImage,
+            }).ToList();
+            return list;
+        }
+
+        public async Task<UserResponse> GetUserById(string NicNumber)
+        {
+            var data = await _userRepository.GetUserById(NicNumber);
+            if (data == null)
+            {
+                throw new NotFoundException($"User with Nic Number {NicNumber} was not found.");
+            }
+
+            var res = new UserResponse
+            {
+                NicNumber = data.NicNumber,
+                FirstName = data.FirstName,
+                LastName = data.LastName,
+                Email = data.Email,
+                ContactNo = data.ContactNo,
+                Address = data.Address,
+                roles = data.roles,
+                UserName = data.UserName,
+                ProfileImage = data.ProfileImage,
+            };
+            return res;
+        }
+
+
+        public async Task<UserResponse> UpdateUser(String NicNumber, UserRequest userRequest)
+        {
+            var get = await _userRepository.GetUserById(NicNumber);
+            get.FirstName = userRequest.FirstName;
+            get.LastName = userRequest.LastName;
+            get.Email = userRequest.Email;
+            get.ContactNo = userRequest.ContactNo;
+            get.Address = userRequest.Address;
+            get.PasswordHash = userRequest.Password;
+            get.UserName = userRequest.UserName;
+            get.ProfileImage = userRequest.ProfileImage;
+
+            if (get == null)
+            {
+                throw new NotFoundException($"Bike with ID {NicNumber} was not found.");
+            }
+
+            var data = await _userRepository.UpdateUser(get);
+
+            var res = new UserResponse
+            {
+                FirstName = data.FirstName,
+                LastName = data.LastName,
+                Email = data.Email,
+                ContactNo = data.ContactNo,
+                Address = data.Address,
+                UserName = data.UserName,
+                ProfileImage = data.ProfileImage,
+
+            };
+            return res;
+        }
+
+
+        public async Task<string> DeleteUser(string NicNumber)
+        {
+            var get = await _userRepository.GetUserById(NicNumber);
+            if (get == null)
+            {
+                throw new NotFoundException($"User with NIC Number {NicNumber} was not found.");
+            }
+
+            var data = await _userRepository.DeleteUser(get);
+            return "Successfully Deleted";
+        }
+
+
+
+        public class NotFoundException : Exception
+        {
+            public NotFoundException(string message) : base(message) { }
+        }
+
     }
 }
