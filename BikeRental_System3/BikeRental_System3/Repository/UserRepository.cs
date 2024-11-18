@@ -23,11 +23,6 @@ namespace BikeRental_System3.Repository
             return data.Entity;
         }
 
-        //public async Task<User> UserLogin(LoginRequest loginRequest)
-        //{
-        //    var data = await _context.Users.FirstOrDefaultAsync(u => u.UserName == loginRequest.UserName);
-        //    return data;
-        //}
 
         public async Task<User> GetUserByUsername(string username)
         {
@@ -35,5 +30,56 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
+
+
+        public async Task<List<User>> GetAllUsers()
+        {
+            var data = await _context.Users.ToListAsync();
+            return data;
+        }
+
+        public async Task<User> GetUserById(string NicNumber)
+        {
+            var data = await _context.Users.FirstOrDefaultAsync(b => b.NicNumber == NicNumber);
+            if (data == null)
+            {
+                throw new NotFoundException($"User with NIC number {NicNumber} was not found.");
+            }
+            return data;
+        }
+
+
+        public async Task<User> UpdateUser(User user)
+        {
+            var data = _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            if (data == null)
+            {
+                throw new NotFoundException($"User with NIC Number {user} was not found.");
+            }
+
+            return data.Entity;
+
+        }
+
+        public async Task<string> DeleteUser(User user)
+        {
+            var data = _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            if (data == null)
+            {
+                throw new NotFoundException($"User with NIC Number {user} was not found.");
+
+            }
+
+            return "Successfully Deleted";
+        }
+
+
+
+        public class NotFoundException : Exception
+        {
+            public NotFoundException(string message) : base(message) { }
+        }
     }
 }

@@ -6,9 +6,11 @@ namespace BikeRental_System3.IRepository
     public interface IUserRepository
     {
         Task<User> UserRegister(User user);
-        //Task<User> UserLogin(LoginRequest loginRequest);
-        //Task<User> UserLogin(User user);
 
         Task<User> GetUserByUsername(string username);
+        Task<List<User>> GetAllUsers();
+        Task<User> GetUserById(string NicNumber);
+        Task<User> UpdateUser(User user);
+        Task<string> DeleteUser(User user);
     }
 }
