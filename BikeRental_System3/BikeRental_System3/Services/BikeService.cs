@@ -1,4 +1,5 @@
-﻿using BikeRental_System3.DTOs.Request;
+﻿using Azure.Core;
+using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
@@ -10,20 +11,46 @@ namespace BikeRental_System3.Services
     public class BikeService : IBikeService
     {
         private readonly IBikeRepository _bikeRepository;
+        private readonly string _imageFolder;
 
         public BikeService(IBikeRepository bikeRepository)
         {
             _bikeRepository = bikeRepository;
+            _imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+            // Ensure the folder exists
+            if (!Directory.Exists(_imageFolder))
+            {
+                Directory.CreateDirectory(_imageFolder);
+            }
+
         }
 
         public async Task<BikeResponse> AddBike(BikeRequest bikeRequest)
         {
+            if (bikeRequest.Image == null || bikeRequest.Image.Length == 0)
+            {
+                throw new ArgumentException("No image uploaded.");
+            }
+
+            // Save the image to the wwwroot/images folder
+            var fileName = Path.GetFileName(bikeRequest.Image.FileName);
+            var filePath = Path.Combine(_imageFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await bikeRequest.Image.CopyToAsync(stream);
+            }
+
+
+
             var bikes = new Bike
             {
                 Brand = bikeRequest.Brand,
                 Type = bikeRequest.Type,
                 Model = bikeRequest.Model,
-                RatePerHour = bikeRequest.RatePerHour
+                RatePerHour = bikeRequest.RatePerHour,
+                Image = fileName
             };
 
             var data = await _bikeRepository.AddBike(bikes);
@@ -33,7 +60,8 @@ namespace BikeRental_System3.Services
                 Brand = data.Brand,
                 Type = data.Type,
                 Model = data.Model,
-                RatePerHour = data.RatePerHour
+                RatePerHour = data.RatePerHour,
+                Image = data.Image,
 
             };
             return res;

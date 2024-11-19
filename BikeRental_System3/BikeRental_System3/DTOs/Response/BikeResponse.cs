@@ -7,5 +7,6 @@
         public string Type { get; set; }
         public string Model { get; set; }
         public decimal RatePerHour { get; set; }
+        public string Image { get; set; }
     }
 }

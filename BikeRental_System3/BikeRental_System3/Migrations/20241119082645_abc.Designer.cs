@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241111074821_test")]
-    partial class test
+    [Migration("20241119082645_abc")]
+    partial class abc
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -49,26 +49,6 @@ namespace BikeRental_System3.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bikes");
-                });
-
-            modelBuilder.Entity("BikeRental_System3.Models.Image", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BikeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BikeId");
-
-                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.Inventory", b =>
@@ -187,7 +167,7 @@ namespace BikeRental_System3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsBlocked")
+                    b.Property<bool?>("IsBlocked")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
@@ -211,17 +191,6 @@ namespace BikeRental_System3.Migrations
                     b.HasKey("NicNumber");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("BikeRental_System3.Models.Image", b =>
-                {
-                    b.HasOne("BikeRental_System3.Models.Bike", "Bike")
-                        .WithMany("Images")
-                        .HasForeignKey("BikeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bike");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.Inventory", b =>
@@ -271,8 +240,6 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.Bike", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("Inventory");
 
                     b.Navigation("RentalRequests");
