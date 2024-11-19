@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BikeRental_System3.Migrations
 {
     /// <inheritdoc />
-    public partial class test : Migration
+    public partial class abc : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,32 +39,13 @@ namespace BikeRental_System3.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     roles = table.Column<int>(type: "int", nullable: false),
-                    IsBlocked = table.Column<bool>(type: "bit", nullable: false),
+                    IsBlocked = table.Column<bool>(type: "bit", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.NicNumber);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Images",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BikeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Images", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Images_Bikes_BikeId",
-                        column: x => x.BikeId,
-                        principalTable: "Bikes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -145,11 +126,6 @@ namespace BikeRental_System3.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Images_BikeId",
-                table: "Images",
-                column: "BikeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Inventories_BikeId",
                 table: "Inventories",
                 column: "BikeId");
@@ -179,9 +155,6 @@ namespace BikeRental_System3.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Images");
-
             migrationBuilder.DropTable(
                 name: "RentalRecords");
 

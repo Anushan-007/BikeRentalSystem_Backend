@@ -2,8 +2,8 @@
 {
     public class ImageRequest
     {
-        public Guid Id { get; set; }
-        public string ImagePath { get; set; }
-        public Guid BikeId { get; set; }
+        //public Guid Id { get; set; }
+        //public IFormFile ImagePath { get; set; }
+        //public Guid BikeId { get; set; }
     }
 }

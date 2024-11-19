@@ -19,7 +19,7 @@ namespace BikeRental_System3.Controllers
         }
 
         [HttpPost("BikeAdd")]
-        public async Task<IActionResult> AddBike(BikeRequest bikeRequest)
+        public async Task<IActionResult> AddBike([FromForm] BikeRequest bikeRequest)
         {
             try
             {

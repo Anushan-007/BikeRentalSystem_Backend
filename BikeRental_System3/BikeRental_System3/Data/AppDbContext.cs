@@ -12,10 +12,10 @@ namespace BikeRental_System3.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Bike>()
-                .HasMany(b => b.Images)
-                .WithOne(i => i.Bike)
-                .HasForeignKey(b => b.BikeId);
+            //modelBuilder.Entity<Bike>()
+            //    .HasMany(b => b.Images)
+            //    .WithOne(i => i.Bike)
+            //    .HasForeignKey(b => b.BikeId);
 
             modelBuilder.Entity<Inventory>()
                 .HasOne(i => i.Bike)
@@ -47,7 +47,7 @@ namespace BikeRental_System3.Data
         }
 
         public DbSet<Bike> Bikes { get; set; }
-        public DbSet<Image> Images { get; set; }
+        //public DbSet<Image> Images { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<RentalRecord> RentalRecords { get; set; }
         public DbSet<RentalRequest> RentalRequests { get; set; }
