@@ -5,25 +5,24 @@
 namespace BikeRental_System3.Migrations
 {
     /// <inheritdoc />
-    public partial class imagecolum : Migration
+    public partial class test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Image",
-                table: "Bikes",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.RenameColumn(
+                name: "Images",
+                table: "Images",
+                newName: "ImagePath");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Image",
-                table: "Bikes");
+            migrationBuilder.RenameColumn(
+                name: "ImagePath",
+                table: "Images",
+                newName: "Images");
         }
     }
 }

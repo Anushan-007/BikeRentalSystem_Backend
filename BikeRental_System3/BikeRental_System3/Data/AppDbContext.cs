@@ -17,6 +17,24 @@ namespace BikeRental_System3.Data
             //    .WithOne(i => i.Bike)
             //    .HasForeignKey(b => b.BikeId);
 
+                    modelBuilder.Entity<Bike>()
+                .HasMany(b => b.BikeUnits)
+                .WithOne(bu => bu.Bike)
+                .HasForeignKey(bu => bu.BikeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                        modelBuilder.Entity<Bike>()
+               .HasMany(b => b.RentalRequests)
+               .WithOne(r => r.Bike)
+               .HasForeignKey(r => r.BikeId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BikeUnit>()
+        .HasMany(bu => bu.Images)
+        .WithOne(bi => bi.BikeUnit)
+        .HasForeignKey(bi => bi.UnitId)
+        .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Inventory>()
                 .HasOne(i => i.Bike)
                 .WithMany(b => b.Inventory)
@@ -26,6 +44,13 @@ namespace BikeRental_System3.Data
               .HasMany(i => i.RentalRecords)
               .WithOne(r => r.inventory)
               .HasForeignKey(r => r.RegistrationNumber);
+
+
+                    modelBuilder.Entity<RentalRequest>()
+              .HasOne(r => r.User)
+              .WithMany(u => u.RentalRequest)
+              .HasForeignKey(r => r.UserId)
+              .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RentalRecord>()
                 .HasOne(r => r.RentalRequest)
@@ -47,7 +72,8 @@ namespace BikeRental_System3.Data
         }
 
         public DbSet<Bike> Bikes { get; set; }
-        //public DbSet<Image> Images { get; set; }
+        public DbSet<BikeUnit>BikeUnits { get; set; }
+        public DbSet<Image> Images { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<RentalRecord> RentalRecords { get; set; }
         public DbSet<RentalRequest> RentalRequests { get; set; }

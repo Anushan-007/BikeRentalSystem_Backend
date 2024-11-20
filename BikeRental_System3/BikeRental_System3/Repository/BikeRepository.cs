@@ -21,6 +21,50 @@ namespace BikeRental_System3.Repository
             return data.Entity;
         }
 
+        public async Task<Guid> AddBikeUnit(BikeUnit unit)
+
+        {
+            await _context.BikeUnits.AddAsync(unit);
+            await _context.SaveChangesAsync();
+            return unit.UnitId;
+        }
+
+        public async Task<bool> AddBikeImages(List<Image> bikeImages)
+        {
+            await _context.Images.AddRangeAsync(bikeImages);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Bike> GetByRegNo(string RegNo)
+        {
+            var findbike = await _context.BikeUnits
+
+                         .Include(bi => bi.Images)
+                         .FirstOrDefaultAsync(b => b.RegistrationNumber == RegNo);
+
+            if (findbike == null)
+            {
+                throw new Exception("Error: Bike not found");
+            }
+
+
+            var getbike = await _context.Bikes
+                   .Include(b => b.BikeUnits.Where(bu => bu.UnitId == findbike.UnitId))
+                   .ThenInclude(bu => bu.Images)
+                   .FirstOrDefaultAsync(b => b.Id == findbike.BikeId);
+
+            if (getbike != null)
+            {
+                return getbike;
+            }
+            else
+            {
+                throw new Exception("Invalid!");
+            }
+
+        }
+
         public async Task<List<Bike>> GetAllBikes()
         {
             var data = await _context.Bikes.ToListAsync();
