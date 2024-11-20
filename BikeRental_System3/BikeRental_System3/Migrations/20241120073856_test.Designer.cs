@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241119082645_abc")]
-    partial class abc
+    [Migration("20241120073856_test")]
+    partial class test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,9 +39,6 @@ namespace BikeRental_System3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("RatePerHour")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -49,6 +46,52 @@ namespace BikeRental_System3.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bikes");
+                });
+
+            modelBuilder.Entity("BikeRental_System3.Models.BikeUnit", b =>
+                {
+                    b.Property<Guid>("UnitId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BikeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RentPerDay")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("UnitId");
+
+                    b.HasIndex("BikeId");
+
+                    b.ToTable("BikeUnits");
+                });
+
+            modelBuilder.Entity("BikeRental_System3.Models.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.Inventory", b =>
@@ -115,10 +158,7 @@ namespace BikeRental_System3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BikeId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("BikeId1")
+                    b.Property<Guid>("BikeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("NicNumber")
@@ -134,9 +174,12 @@ namespace BikeRental_System3.Migrations
                     b.Property<bool?>("UserAlert")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("BikeId1");
+                    b.HasIndex("BikeId");
 
                     b.HasIndex("NicNumber");
 
@@ -193,6 +236,28 @@ namespace BikeRental_System3.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("BikeRental_System3.Models.BikeUnit", b =>
+                {
+                    b.HasOne("BikeRental_System3.Models.Bike", "Bike")
+                        .WithMany("BikeUnits")
+                        .HasForeignKey("BikeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bike");
+                });
+
+            modelBuilder.Entity("BikeRental_System3.Models.Image", b =>
+                {
+                    b.HasOne("BikeRental_System3.Models.BikeUnit", "BikeUnit")
+                        .WithMany("Images")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BikeUnit");
+                });
+
             modelBuilder.Entity("BikeRental_System3.Models.Inventory", b =>
                 {
                     b.HasOne("BikeRental_System3.Models.Bike", "Bike")
@@ -225,7 +290,9 @@ namespace BikeRental_System3.Migrations
                 {
                     b.HasOne("BikeRental_System3.Models.Bike", "Bike")
                         .WithMany("RentalRequests")
-                        .HasForeignKey("BikeId1");
+                        .HasForeignKey("BikeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BikeRental_System3.Models.User", "User")
                         .WithMany("RentalRequest")
@@ -240,9 +307,16 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.Bike", b =>
                 {
+                    b.Navigation("BikeUnits");
+
                     b.Navigation("Inventory");
 
                     b.Navigation("RentalRequests");
+                });
+
+            modelBuilder.Entity("BikeRental_System3.Models.BikeUnit", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.Inventory", b =>

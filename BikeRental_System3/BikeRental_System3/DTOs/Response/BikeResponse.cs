@@ -1,4 +1,6 @@
-﻿namespace BikeRental_System3.DTOs.Response
+﻿using BikeRental_System3.Models;
+
+namespace BikeRental_System3.DTOs.Response
 {
     public class BikeResponse
     {
@@ -6,7 +8,10 @@
         public string Brand { get; set; }
         public string Type { get; set; }
         public string Model { get; set; }
-        public decimal RatePerHour { get; set; }
-        public string Image { get; set; }
+        //public decimal RatePerHour { get; set; }
+        //public string? Image {  get; set; }
+
+        public List<BikeUnit> BikeUnits { get; set; } = new List<BikeUnit>();
+
     }
 }

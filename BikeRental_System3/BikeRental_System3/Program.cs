@@ -61,10 +61,18 @@ namespace BikeRental_System3
             app.UseCors("CORSOpenPolicy");
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();  // Ensure static files are served from wwwroot
+
+            app.UseRouting();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
             app.UseAuthorization();
 
-
             app.MapControllers();
+
 
             app.Run();
         }

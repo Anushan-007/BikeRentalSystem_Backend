@@ -8,7 +8,8 @@ namespace BikeRental_System3.Models
         public Guid Id { get; set; }
         public DateTime RequestTime { get; set; }
         public Status Status { get; set; }
-        public int BikeId { get; set; }
+        public Guid BikeId { get; set; }
+        public Guid UserId { get; set; }
         public bool? UserAlert { get; set; }
         public string NicNumber { get; set; }
 
