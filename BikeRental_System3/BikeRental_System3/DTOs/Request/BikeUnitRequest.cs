@@ -6,6 +6,7 @@
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
         public int RentPerDay { get; set; }
+        
         public List<IFormFile>? Images { get; set; }  // Single image upload
     }
 }

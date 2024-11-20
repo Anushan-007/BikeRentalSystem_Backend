@@ -7,7 +7,10 @@ namespace BikeRental_System3.DTOs.Request
         public string Brand { get; set; }
         public string Type { get; set; }
         public string Model { get; set; }
-        public List<BikeUnit> BikeUnits { get; set; } = new List<BikeUnit>();
-        //public IFormFile? Image { get; set; }
+        public List<BikeUnitRequest> BikeUnits { get; set; } = new List<BikeUnitRequest>();
+        
     }
 }
+
+
+//public IFormFile? Image { get; set; }

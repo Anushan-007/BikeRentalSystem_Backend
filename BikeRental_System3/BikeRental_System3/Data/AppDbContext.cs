@@ -29,11 +29,13 @@ namespace BikeRental_System3.Data
                .HasForeignKey(r => r.BikeId)
                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<BikeUnit>()
-        .HasMany(bu => bu.Images)
-        .WithOne(bi => bi.BikeUnit)
-        .HasForeignKey(bi => bi.UnitId)
-        .OnDelete(DeleteBehavior.Cascade);
+            //    modelBuilder.Entity<BikeUnit>()
+            //.HasMany(bu => bu.Images)
+            //.WithOne(bi => bi.BikeUnit)
+            //.HasForeignKey(bi => bi.UnitId)
+            //.OnDelete(DeleteBehavior.Cascade);
+
+
 
             modelBuilder.Entity<Inventory>()
                 .HasOne(i => i.Bike)
