@@ -18,24 +18,8 @@ namespace BikeRental_System3.Controllers
             _bikeService = bikeService;
         }
 
-        //[HttpPost("BikeAdd")]
-        //public async Task<IActionResult> AddBike([FromForm] BikeRequest bikeRequest)
-        //{
-        //    try
-        //    {
-        //        var data = await _bikeService.AddBike(bikeRequest);
-        //        return Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-
-        //}
-
-
         [HttpPost("BikeAdd")]
-        public async Task<IActionResult> AddBike([FromForm] BikeRequest bikeRequest)
+        public async Task<IActionResult> AddBike([FromBody] BikeRequest bikeRequest)
         {
             // Log the incoming bikeRequest object
             if (bikeRequest == null)
@@ -59,6 +43,13 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+
+        [HttpPost("AddBikeImages")]
+        public async Task<IActionResult> AddBikeImages([FromForm] ImageRequest imageRequest)
+        {
+            var data = await _bikeService.AddBikeImages(imageRequest);
+            return Ok(data);
+        }
 
 
 
