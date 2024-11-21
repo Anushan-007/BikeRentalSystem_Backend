@@ -1,6 +1,7 @@
 ﻿using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
+using BikeRental_System3.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,30 @@ namespace BikeRental_System3.Controllers
         //        return BadRequest(ex.Message);
         //    }
         //}
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllBikes()
+        {
+            var bikes = await _bikeService.GetAllBikesAsync();
+            return Ok(bikes);
+        }
+
+
+        //[HttpGet("AllBikes")]
+        //public async Task<IActionResult> AllBikes(int pagenumber, int pagesize)
+        //{
+        //    try
+        //    {
+        //        var data = await _bikeService.AllBikes(pagenumber, pagesize);
+        //        return Ok(data);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
 
         //[HttpGet("GetBikeById")]
         //public async Task<IActionResult> GetBikeById(Guid Id)

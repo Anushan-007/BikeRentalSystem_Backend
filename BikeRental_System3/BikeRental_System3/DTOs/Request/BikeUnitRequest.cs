@@ -1,4 +1,6 @@
-﻿namespace BikeRental_System3.DTOs.Request
+﻿using BikeRental_System3.Models;
+
+namespace BikeRental_System3.DTOs.Request
 {
     public class BikeUnitRequest
     {
@@ -6,8 +8,8 @@
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
         public int RentPerDay { get; set; }
-        
-        //public List<IFormFile>? Images { get; set; }  // Single image upload
+
+       // public List<ImageRequest> Images { get; set; }  // Single image upload
 
     }
 }

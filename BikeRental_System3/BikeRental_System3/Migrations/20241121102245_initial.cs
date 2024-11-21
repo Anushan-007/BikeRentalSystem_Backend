@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BikeRental_System3.Migrations
 {
     /// <inheritdoc />
-    public partial class bike : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -125,17 +125,17 @@ namespace BikeRental_System3.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BikeUnitUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Images", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Images_BikeUnits_UnitId",
-                        column: x => x.UnitId,
+                        name: "FK_Images_BikeUnits_BikeUnitUnitId",
+                        column: x => x.BikeUnitUnitId,
                         principalTable: "BikeUnits",
-                        principalColumn: "UnitId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UnitId");
                 });
 
             migrationBuilder.CreateTable(
@@ -171,9 +171,9 @@ namespace BikeRental_System3.Migrations
                 column: "BikeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Images_UnitId",
+                name: "IX_Images_BikeUnitUnitId",
                 table: "Images",
-                column: "UnitId");
+                column: "BikeUnitUnitId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inventories_BikeId",

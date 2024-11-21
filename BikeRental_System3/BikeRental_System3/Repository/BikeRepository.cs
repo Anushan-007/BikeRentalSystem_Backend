@@ -70,9 +70,24 @@ namespace BikeRental_System3.Repository
 
         public async Task<List<Bike>> GetAllBikes()
         {
-            var data = await _context.Bikes.ToListAsync();
+            var data = await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bi => bi.Images).ToListAsync();
             return data;
         }
+
+        //public async Task<List<Bike>> AllBikes(int pagenumber, int pagesize)
+        //{
+
+        //    int skip = (pagenumber - 1) * pagesize;
+        //    var data = await _context.Bikes
+        //    .Include(b => b.BikeUnits)
+        //    .ThenInclude(bi => bi.Images)
+        //    .Skip(skip).Take(pagesize)
+        //    .ToListAsync();
+
+
+        //    return data;
+
+        //}
 
         public async Task<Bike> GetBikeById(Guid Id)
         {

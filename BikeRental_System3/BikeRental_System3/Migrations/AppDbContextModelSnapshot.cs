@@ -77,9 +77,6 @@ namespace BikeRental_System3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BikeUnitUnitId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -89,7 +86,7 @@ namespace BikeRental_System3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BikeUnitUnitId");
+                    b.HasIndex("UnitId");
 
                     b.ToTable("Images");
                 });
@@ -251,7 +248,9 @@ namespace BikeRental_System3.Migrations
                 {
                     b.HasOne("BikeRental_System3.Models.BikeUnit", "BikeUnit")
                         .WithMany("Images")
-                        .HasForeignKey("BikeUnitUnitId");
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BikeUnit");
                 });
