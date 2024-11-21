@@ -3,7 +3,6 @@ using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
-using BikeRental_System3.Migrations;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -76,7 +75,13 @@ namespace BikeRental_System3.Services
                 Brand = bike.Brand,
                 Type = bike.Type,
                 Model = bike.Model,
-                BikeUnits=bikeUnits
+                BikeUnits = bikeUnits.Select(p => new BikeUnitResponse
+                {
+                    UnitId = p.UnitId,
+                    RegistrationNumber = p.RegistrationNumber,
+                    Year = p.Year,
+                    RentPerDay = p.RentPerDay
+                }).ToList()
             };
             return res;
         }
@@ -103,9 +108,8 @@ namespace BikeRental_System3.Services
 
             var image = new Image
             {
-                UnitId = imageRequest.BikeId,
+                UnitId = imageRequest.UnitId,
                 ImagePath = filePath
-
             };
             await _bikeRepository.AddBikeImages(image);
             return true;
@@ -141,6 +145,63 @@ namespace BikeRental_System3.Services
         //        Image = x.Image
         //    }).ToList();
         //    return list;
+        //}
+
+        //public async Task<List<Bike>> GetAllBikesAsync()
+        //{
+        //    return await _bikeRepository.GetAllBikes();
+        //}
+
+
+        public async Task<List<BikeResponse>> GetAllBikesAsync()
+        {
+            var bikes = await _bikeRepository.GetAllBikes();
+
+            // Log the bikes and their images to debug
+            foreach (var bike in bikes)
+            {
+                foreach (var unit in bike.BikeUnits)
+                {
+                    Console.WriteLine($"BikeUnit {unit.UnitId} Images: {unit.Images?.Count ?? 0}");
+                }
+            }
+
+            // Continue mapping as usual
+            var bikeDtos = bikes.Select(b => new BikeResponse
+            {
+                Id = b.Id,
+                Brand = b.Brand,
+                Type = b.Type,
+                Model = b.Model,
+                BikeUnits = b.BikeUnits.Select(bu => new BikeUnitResponse
+                {
+                    UnitId = bu.UnitId,
+                    RegistrationNumber = bu.RegistrationNumber,
+                    Year = bu.Year,
+                    RentPerDay = bu.RentPerDay,
+                    Images = bu.Images?.Select(img => new ImageResponse
+                    {
+                        Id = img.Id,
+                        ImagePath = img.ImagePath
+                    }).ToList() ?? new List<ImageResponse>()
+                }).ToList()
+            }).ToList();
+
+            return bikeDtos;
+        }
+
+
+
+        //public async Task<List<Bike>> AllBikes(int pagenumber, int pagesize)
+        //{
+        //    var data = await _bikeRepository.AllBikes(pagenumber, pagesize);
+
+        //    if (data == null)
+        //    {
+        //        throw new Exception("Data Not Found!");
+
+        //    }
+        //    return data;
         //}
 
         //public async Task<BikeResponse> GetBikeById(Guid Id)

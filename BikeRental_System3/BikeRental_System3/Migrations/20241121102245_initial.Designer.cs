@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241120053044_bike")]
-    partial class bike
+    [Migration("20241121102245_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -80,7 +80,10 @@ namespace BikeRental_System3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Images")
+                    b.Property<Guid?>("BikeUnitUnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -89,7 +92,7 @@ namespace BikeRental_System3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UnitId");
+                    b.HasIndex("BikeUnitUnitId");
 
                     b.ToTable("Images");
                 });
@@ -251,9 +254,7 @@ namespace BikeRental_System3.Migrations
                 {
                     b.HasOne("BikeRental_System3.Models.BikeUnit", "BikeUnit")
                         .WithMany("Images")
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BikeUnitUnitId");
 
                     b.Navigation("BikeUnit");
                 });

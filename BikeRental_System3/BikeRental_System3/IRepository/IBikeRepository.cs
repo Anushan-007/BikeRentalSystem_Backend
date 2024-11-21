@@ -7,14 +7,15 @@ namespace BikeRental_System3.IRepository
     {
          Task<Guid> AddBike(Bike bike);
         Task<Guid> AddBikeUnit(BikeUnit unit);
-      //  Task<bool> AddBikeImages(List<Image> bikeImages);
+        Task<bool> AddBikeImages(Image imageRequest);
         Task<Bike> GetByRegNo(string RegNo);
         Task<List<Bike>> GetAllBikes();
+        //Task<List<Bike>> AllBikes(int pagenumber, int pagesize);
         Task<Bike> GetBikeById(Guid Id);
         Task<Bike> UpdateBike(Bike bike);
         Task<string> DeleteBike(Bike bike);
 
-        Task<bool> AddBikeImages(Image imageRequest);
+        
 
 
     }

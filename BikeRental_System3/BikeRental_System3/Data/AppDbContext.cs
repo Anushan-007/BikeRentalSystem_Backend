@@ -12,12 +12,12 @@ namespace BikeRental_System3.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Bike>()
-            //    .HasMany(b => b.Images)
-            //    .WithOne(i => i.Bike)
-            //    .HasForeignKey(b => b.BikeId);
+            modelBuilder.Entity<BikeUnit>()
+                .HasMany(b => b.Images)
+                .WithOne(i => i.BikeUnit)
+                .HasForeignKey(b => b.UnitId);
 
-                    modelBuilder.Entity<Bike>()
+            modelBuilder.Entity<Bike>()
                 .HasMany(b => b.BikeUnits)
                 .WithOne(bu => bu.Bike)
                 .HasForeignKey(bu => bu.BikeId)

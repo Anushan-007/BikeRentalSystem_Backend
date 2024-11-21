@@ -4,6 +4,6 @@
     {
         public Guid Id { get; set; }
         public IFormFile ImagePath { get; set; }
-        public Guid BikeId { get; set; }
+        public Guid UnitId { get; set; }
     }
 }
