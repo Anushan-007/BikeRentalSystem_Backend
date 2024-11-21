@@ -14,11 +14,13 @@ namespace BikeRental_System3.Repository
             _context = context;
         }
 
-        public async Task<Bike> AddBike(Bike bike)
+        public async Task<Guid> AddBike(Bike bike)
         {
+            
             var data = await _context.AddAsync(bike);
             await _context.SaveChangesAsync();
-            return data.Entity;
+            Guid id= bike.Id;
+            return id;
         }
 
         public async Task<Guid> AddBikeUnit(BikeUnit unit)
@@ -26,12 +28,13 @@ namespace BikeRental_System3.Repository
         {
             await _context.BikeUnits.AddAsync(unit);
             await _context.SaveChangesAsync();
+            _context.Entry(unit).Reload();
             return unit.UnitId;
         }
 
-        public async Task<bool> AddBikeImages(List<Image> bikeImages)
+        public async Task<bool> AddBikeImages(Image image )
         {
-            await _context.Images.AddRangeAsync(bikeImages);
+            await _context.Images.AddRangeAsync(image);
             await _context.SaveChangesAsync();
             return true;
         }

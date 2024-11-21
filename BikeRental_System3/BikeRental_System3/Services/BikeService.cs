@@ -44,86 +44,72 @@ namespace BikeRental_System3.Services
                 Type = bikeRequest.Type,
                 Model = bikeRequest.Model,
             };
+            var addBike = _bikeRepository.AddBike(bike);
 
             var bikeUnits = new List<BikeUnit>();
-            var images = new List<Image>();
 
             // Loop through each bike unit in the request
             foreach (var bikeUnitRequest in bikeRequest.BikeUnits)
             {
-                if (bikeUnitRequest.Images == null || bikeUnitRequest.Images.Count == 0)
-                {
-                    throw new ArgumentException("No images uploaded for bike unit.");
-                }
-
-                foreach (var imageFile in bikeUnitRequest.Images)
-                {
-                    // Ensure that the file is not null or empty
-                    if (imageFile.Length > 0)  // Length is a property of IFormFile, not Image
-                    {
-                        // Generate a unique file name to avoid conflicts
-                        var fileName = Path.GetFileName(imageFile.FileName);  // FileName is a property of IFormFile
-                        var filePath = Path.Combine(_imageFolder, fileName);   // Set the file path (can add a subfolder if needed)
-
-                        // Save the image to disk
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await imageFile.CopyToAsync(stream);  // CopyToAsync is a method of IFormFile
-                        }
-
-                        // Create an Image entity to store in the database
-                        var bikeImage = new Image
-                        {
-                          //  UnitId = unit.UnitId,  // Make sure to associate the image with the bike unit
-                            ImagePath = filePath,  // Store the file path or URL
-                        };
-
-                        images.Add(bikeImage);  // Add the image to the images list
-                    }
-                }
 
                 // Create a new BikeUnit object
                 var unit = new BikeUnit
                 {
-                    BikeId = bikeUnitRequest.BikeId,
+                    BikeId = addBike.Result,
                     RegistrationNumber = bikeUnitRequest.RegistrationNumber,
                     Year = bikeUnitRequest.Year,
                     RentPerDay = bikeUnitRequest.RentPerDay,
-                    Images = images
+                    //Images = images
                 };
 
                 bikeUnits.Add(unit);
 
+             await _bikeRepository.AddBikeUnit(unit);
+
                 // Iterate over each image in the Images list for the current BikeUnit
-                
-            }
 
-            // Save the Bike to the database
-            var savedBike = await _bikeRepository.AddBike(bike);
-
-            // Save BikeUnits
-            foreach (var unit in bikeUnits)
-            {
-                await _bikeRepository.AddBikeUnit(unit);
-            }
-
-            // Save Images (the ImagePath is now being saved in the database)
-            foreach (var image in images)
-            {
-                await _bikeRepository.AddBikeImages(new List<Image> { image });
             }
 
             var res = new BikeResponse
             {
-                Id = savedBike.Id,
-                Brand = savedBike.Brand,
-                Type = savedBike.Type,
-                Model = savedBike.Model,
+                Id = addBike.Result,
+                Brand = bike.Brand,
+                Type = bike.Type,
+                Model = bike.Model,
+                BikeUnits=bikeUnits
             };
-
             return res;
         }
+          
+        public async Task<bool> AddBikeImages(ImageRequest imageRequest)
+        {
+            var bikeImages = new List<Image>();
 
+
+            var imageDirectory = Path.Combine("wwwroot", "bike_images");
+            if (!Directory.Exists(imageDirectory))
+            {
+                Directory.CreateDirectory(imageDirectory);
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{imageRequest.ImagePath.FileName}";
+            var filePath = Path.Combine(imageDirectory, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageRequest.ImagePath.CopyToAsync(stream);
+            }
+
+
+            var image = new Image
+            {
+                UnitId = imageRequest.BikeId,
+                ImagePath = filePath
+
+            };
+            await _bikeRepository.AddBikeImages(image);
+            return true;
+        }
 
         public async Task<Bike> GetByRegNo(string RegNo)
         {
@@ -236,73 +222,4 @@ namespace BikeRental_System3.Services
 
 
 
-
-
-//    // Ensure the folder exists
-//    if (!Directory.Exists(_imageFolder))
-//    {
-//        Directory.CreateDirectory(_imageFolder);
-//    }
-
-//}
-
-//public async Task<BikeResponse> AddBike(BikeRequest bikeRequest)
-//{
-
-
-//    if (bikeRequest.BikeUnits.Images == null || bikeRequest.BikeUnits.Images.Length == 0)
-//    {
-//        throw new ArgumentException("No image uploaded.");
-//    }
-
-//    // Save the image to the wwwroot/images folder
-//    var fileName = Path.GetFileName(bikeRequest.BikeUnits.Images.FileName);
-//    var filePath = Path.Combine(_imageFolder, fileName);
-
-//    using (var stream = new FileStream(filePath, FileMode.Create))
-//    {
-//        await bikeRequest.BikeUnits.Images.CopyToAsync(stream);
-//    }
-
-//    var bikeUnits = new List<BikeUnit>();
-
-//    foreach (var bikeUnt in bikeRequest.BikeUnits)
-//    {
-
-//        var unit = new BikeUnit
-//        {
-//            BikeId = bikeUnt.BikeId,
-//            RegistrationNumber = bikeUnt.RegistrationNumber,
-//            Year = bikeUnt.Year,
-//            RentPerDay = bikeUnt.RentPerDay
-//        };
-
-//        bikeUnits.Add(unit);
-
-//        var bikeimg = new Image
-//        {
-//            UnitId = bikeUnt.UnitId,
-//            Images = bikeUnt.Images,
-//        };
-//    }
-
-
-//    var bikes = new Bike
-//    {
-//        Brand = bikeRequest.Brand,
-//        Type = bikeRequest.Type,
-//        Model = bikeRequest.Model,
-//        //Image = fileName
-//    };
-
-//    var data = await _bikeRepository.AddBike(bikes);
-//    var res = new BikeResponse
-//    {
-//        Id = data.Id,
-//        Brand = data.Brand,
-//        Type = data.Type,
-//        Model = data.Model,
-
-//    };
-//    return res;
 
