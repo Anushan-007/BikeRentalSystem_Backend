@@ -12,7 +12,14 @@ namespace BikeRental_System3.IRepository
         Task<List<Bike>> GetAllBikes();
         //Task<List<Bike>> AllBikes(int pagenumber, int pagesize);
         Task<Bike> GetBikeById(Guid Id);
-        Task<Bike> UpdateBike(Bike bike);
+        //Task<Bike> UpdateBike(Bike bike);
+        //Task<Bike> UpdateBike(Bike bike);
+        //Task<BikeUnit> UpdateBikeUnit(BikeUnit unit);
+        //Task<bool> UpdateBikeImages(List<Image> images, Guid bikeUnitId);
+        //Task<Bike> UpdateBike(Bike bike);
+        //Task<bool> UpdateBikeImages(List<Image> images, Guid unitId);
+        Task<bool> UpadteUnit(BikeUnit bikeUnit);
+        Task<bool> UpdateBikeImages(List<Image> bikeImages);
         Task<string> DeleteBike(Bike bike);
 
         

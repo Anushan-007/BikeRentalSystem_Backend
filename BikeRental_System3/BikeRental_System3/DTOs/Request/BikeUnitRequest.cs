@@ -9,7 +9,10 @@ namespace BikeRental_System3.DTOs.Request
         public int Year { get; set; }
         public int RentPerDay { get; set; }
 
-       // public List<ImageRequest> Images { get; set; }  // Single image upload
+       
 
     }
 }
+
+
+// public List<ImageRequest> Images { get; set; }  // Single image upload

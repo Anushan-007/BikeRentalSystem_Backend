@@ -122,6 +122,79 @@ namespace BikeRental_System3.Controllers
         //    }
         //}
 
+        //[HttpPut("BikeUpdate")]
+        //public async Task<IActionResult> UpdateBike([FromBody] BikeRequest bikeRequest)
+        //{
+        //    if (bikeRequest == null)
+        //    {
+        //        return BadRequest("No bike request data received.");
+        //    }
+
+        //    if (bikeRequest.BikeUnits == null || bikeRequest.BikeUnits.Count == 0)
+        //    {
+        //        return BadRequest("No bike units provided.");
+        //    }
+
+        //    try
+        //    {
+        //        var updatedBike = await _bikeService.UpdateBike(bikeRequest);
+        //        return Ok(updatedBike);
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return NotFound(ex.Message);  // Handle not found error
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"An error occurred: {ex.Message}");
+        //    }
+        //}
+
+
+        //[HttpPut("BikeUpdate")]
+        //public async Task<IActionResult> UpdateBike([FromBody] BikeRequest bikeRequest)
+        //{
+        //    if (bikeRequest == null)
+        //    {
+        //        return BadRequest("No bike request data received.");
+        //    }
+
+        //    if (bikeRequest.BikeUnits == null || bikeRequest.BikeUnits.Count == 0)
+        //    {
+        //        return BadRequest("No bike units provided.");
+        //    }
+
+        //    try
+        //    {
+        //        var updatedBike = await _bikeService.UpdateBike(bikeRequest);
+        //        return Ok(updatedBike);
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return NotFound(ex.Message);  // Handle not found error
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"An error occurred: {ex.Message}");
+        //    }
+        //}
+
+
+        [HttpPut("UpdateBike")]
+        public async Task<IActionResult> UpdateBikeUnit([FromForm] BikeUnitUpdateDTO bikeUnitUpdateDTO)
+        {
+            try
+            {
+                var data = await _bikeService.UpdateBikeUnit(bikeUnitUpdateDTO);
+                return Ok(data);
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
         //[HttpDelete("DeleteBike")]
         //public async Task<IActionResult> DeleteBike(Guid Id)
         //{
