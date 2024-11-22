@@ -182,7 +182,8 @@ namespace BikeRental_System3.Services
                     Images = bu.Images?.Select(img => new ImageResponse
                     {
                         Id = img.Id,
-                        ImagePath = img.ImagePath
+                        ImagePath = img.ImagePath.Replace("wwwroot\\","").Replace("\\","//")
+                       
                     }).ToList() ?? new List<ImageResponse>()
                 }).ToList()
             }).ToList();
