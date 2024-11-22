@@ -12,13 +12,11 @@ namespace BikeRental_System3.IService
 
         Task<Bike> GetByRegNo(string RegNo);
         Task<List<BikeResponse>> GetAllBikesAsync();
-        //Task<List<Bike>> AllBikes(int pagenumber, int pagesize);
-
-        //Task<List<BikeResponse>> GetAllBikes();
         //Task<BikeResponse> GetBikeById(Guid Id);
-        //Task<BikeResponse> UpdateBike(Guid Id, BikeRequest bikeRequest);
-        // Task<BikeResponse> UpdateBike(BikeRequest bikeRequest);
-        Task<bool> UpdateBikeUnit(BikeUnitUpdateDTO bikeUnitUpdateDTO);
+        Task<BikeResponse> GetBikeDetailsAsync(Guid bikeId);
+        //Task<bool> UpdateBikeUnit(BikeUnitUpdateDTO bikeUnitUpdateDTO);
+        Task<bool> UpdateBikeAndUnitsAndImages(Guid bikeId, BikeUnitUpdateDTO bikeUnitUpdateDTO);
+       
         //Task<string> DeleteBike(Guid Id);
     }
 }

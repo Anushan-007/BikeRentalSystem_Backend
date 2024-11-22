@@ -53,44 +53,20 @@ namespace BikeRental_System3.Controllers
         }
 
 
-
-
-        //[HttpGet("GetAllBikes")]
-        //public async Task<IActionResult> GettAllBikes()
-        //{
-        //    try
-        //    {
-        //        var data = await _bikeService.GetAllBikes();
-        //        return Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
-
-        [HttpGet]
+        [HttpGet("GetAllBikes")]
         public async Task<IActionResult> GetAllBikes()
         {
-            var bikes = await _bikeService.GetAllBikesAsync();
-            return Ok(bikes);
+            try
+            {
+                var bikes = await _bikeService.GetAllBikesAsync();
+                return Ok(bikes);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-
-        //[HttpGet("AllBikes")]
-        //public async Task<IActionResult> AllBikes(int pagenumber, int pagesize)
-        //{
-        //    try
-        //    {
-        //        var data = await _bikeService.AllBikes(pagenumber, pagesize);
-        //        return Ok(data);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
 
 
         //[HttpGet("GetBikeById")]
@@ -108,88 +84,47 @@ namespace BikeRental_System3.Controllers
 
         //}
 
+
+        [HttpGet("{bikeId}")]
+        public async Task<IActionResult> GetBikeDetails(Guid bikeId)
+        {
+            // Call the service to get the bike details
+            var bikeDetails = await _bikeService.GetBikeDetailsAsync(bikeId);
+
+            if (bikeDetails == null)
+            {
+                return NotFound(); // Return 404 if bike not found
+            }
+
+            return Ok(bikeDetails); // Return 200 with the BikeResponse DTO
+        }
+
+
         //[HttpPut("UpdateBike")]
-        //public async Task<IActionResult> UpdateBike(Guid Id, BikeRequest bikeRequest)
+        //public async Task<IActionResult> UpdateBikeUnit([FromForm] BikeUnitUpdateDTO bikeUnitUpdateDTO)
         //{
         //    try
         //    {
-        //        var data = await _bikeService.UpdateBike(Id, bikeRequest);
+        //        var data = await _bikeService.UpdateBikeUnit(bikeUnitUpdateDTO);
         //        return Ok(data);
-        //    }
-        //    catch (Exception ex)
+        //    }catch (Exception ex)
         //    {
         //        return BadRequest(ex.Message);
         //    }
         //}
 
-        //[HttpPut("BikeUpdate")]
-        //public async Task<IActionResult> UpdateBike([FromBody] BikeRequest bikeRequest)
-        //{
-        //    if (bikeRequest == null)
-        //    {
-        //        return BadRequest("No bike request data received.");
-        //    }
-
-        //    if (bikeRequest.BikeUnits == null || bikeRequest.BikeUnits.Count == 0)
-        //    {
-        //        return BadRequest("No bike units provided.");
-        //    }
-
-        //    try
-        //    {
-        //        var updatedBike = await _bikeService.UpdateBike(bikeRequest);
-        //        return Ok(updatedBike);
-        //    }
-        //    catch (ArgumentException ex)
-        //    {
-        //        return NotFound(ex.Message);  // Handle not found error
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"An error occurred: {ex.Message}");
-        //    }
-        //}
-
-
-        //[HttpPut("BikeUpdate")]
-        //public async Task<IActionResult> UpdateBike([FromBody] BikeRequest bikeRequest)
-        //{
-        //    if (bikeRequest == null)
-        //    {
-        //        return BadRequest("No bike request data received.");
-        //    }
-
-        //    if (bikeRequest.BikeUnits == null || bikeRequest.BikeUnits.Count == 0)
-        //    {
-        //        return BadRequest("No bike units provided.");
-        //    }
-
-        //    try
-        //    {
-        //        var updatedBike = await _bikeService.UpdateBike(bikeRequest);
-        //        return Ok(updatedBike);
-        //    }
-        //    catch (ArgumentException ex)
-        //    {
-        //        return NotFound(ex.Message);  // Handle not found error
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"An error occurred: {ex.Message}");
-        //    }
-        //}
-
-
-        [HttpPut("UpdateBike")]
-        public async Task<IActionResult> UpdateBikeUnit([FromForm] BikeUnitUpdateDTO bikeUnitUpdateDTO)
+        [HttpPut("{bikeId}/UpdateBike")]
+        public async Task<IActionResult> UpdateBikeUnit(Guid bikeId, [FromForm] BikeUnitUpdateDTO bikeUnitUpdateDTO)
         {
             try
             {
-                var data = await _bikeService.UpdateBikeUnit(bikeUnitUpdateDTO);
-                return Ok(data);
-            }catch (Exception ex)
+                // Call the service to update the bike, its units, and images
+                var result = await _bikeService.UpdateBikeAndUnitsAndImages(bikeId, bikeUnitUpdateDTO);
+                return Ok(new { success = result });
+            }
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 

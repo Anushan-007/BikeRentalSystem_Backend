@@ -24,7 +24,6 @@ namespace BikeRental_System3.Repository
         }
 
         public async Task<Guid> AddBikeUnit(BikeUnit unit)
-
         {
             await _context.BikeUnits.AddAsync(unit);
             await _context.SaveChangesAsync();
@@ -74,170 +73,28 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
-        //public async Task<List<Bike>> AllBikes(int pagenumber, int pagesize)
+
+        //public async Task<Bike> GetBikeById(Guid Id)
         //{
-
-        //    int skip = (pagenumber - 1) * pagesize;
-        //    var data = await _context.Bikes
-        //    .Include(b => b.BikeUnits)
-        //    .ThenInclude(bi => bi.Images)
-        //    .Skip(skip).Take(pagesize)
-        //    .ToListAsync();
-
-
-        //    return data;
-
-        //}
-
-        public async Task<Bike> GetBikeById(Guid Id)
-        {
-            var data = await _context.Bikes.FirstOrDefaultAsync(b => b.Id == Id);
-            if (data == null)
-            {
-                throw new NotFoundException($"Bike with ID {Id} was not found.");
-            }
-            return data;
-        }
-
-        //public async Task<Bike> UpdateBike(Bike bike)
-        //{
-        //    var data = _context.Bikes.Update(bike);
-        //    await _context.SaveChangesAsync();
+        //    var data = await _context.Bikes.FirstOrDefaultAsync(b => b.Id == Id);
         //    if (data == null)
         //    {
-        //        throw new NotFoundException($"Bike with ID {bike} was not found.");
+        //        throw new NotFoundException($"Bike with ID {Id} was not found.");
         //    }
-
-        //    return data.Entity;
-
-        //}
-
-        //public async Task<Bike> UpdateBike(Bike bike)
-        //{
-        //    var existingBike = await _context.Bikes.FindAsync(bike.Id);
-        //    if (existingBike == null)
-        //    {
-        //        throw new ArgumentException("Bike not found.");
-        //    }
-
-        //    existingBike.Brand = bike.Brand;
-        //    existingBike.Type = bike.Type;
-        //    existingBike.Model = bike.Model;
-
-        //    _context.Bikes.Update(existingBike);
-        //    await _context.SaveChangesAsync();
-
-        //    return existingBike;
+        //    return data;
         //}
 
 
+        public async Task<Bike> GetBikeByIdAsync(Guid bikeId)
+        {
+            return await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bu => bu.Images).FirstOrDefaultAsync(b => b.Id == bikeId);
+        }
 
-
-        //public async Task<BikeUnit> UpdateBikeUnit(BikeUnit unit)
-        //{
-        //    var existingUnit = await _context.BikeUnits.FindAsync(unit.UnitId);
-        //    if (existingUnit == null)
-        //    {
-        //        throw new ArgumentException("Bike unit not found.");
-        //    }
-
-        //    existingUnit.RegistrationNumber = unit.RegistrationNumber;
-        //    existingUnit.Year = unit.Year;
-        //    existingUnit.RentPerDay = unit.RentPerDay;
-
-        //    _context.BikeUnits.Update(existingUnit);
-        //    await _context.SaveChangesAsync();
-
-        //    return existingUnit;
-        //}
-
-        //public async Task<bool> UpdateBikeImages(List<Image> images, Guid bikeUnitId)
-        //{
-
-        //    var existingImages = await _context.Images.Where(i => i.UnitId == bikeUnitId).ToListAsync();
-        //    _context.Images.RemoveRange(existingImages);
-
-
-        //    foreach (var image in images)
-        //    {
-        //        _context.Images.Add(image);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return true;
-        //}
-
-
-        //public async Task<Bike> UpdateBike(Bike bike)
-        //{
-        //    var existingBike = await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bu => bu.Images).FirstOrDefaultAsync(b => b.Id == bike.Id);
-        //    if (existingBike == null)
-        //    {
-        //        throw new ArgumentException("Bike not found.");
-        //    }
-
-        //    existingBike.Brand = bike.Brand;
-        //    existingBike.Type = bike.Type;
-        //    existingBike.Model = bike.Model;
-
-        //    // Update related BikeUnits and Images
-        //    foreach (var bikeUnit in bike.BikeUnits)
-        //    {
-        //        var existingUnit = existingBike.BikeUnits.FirstOrDefault(bu => bu.UnitId == bikeUnit.UnitId);
-        //        if (existingUnit != null)
-        //        {
-        //            existingUnit.RegistrationNumber = bikeUnit.RegistrationNumber;
-        //            existingUnit.Year = bikeUnit.Year;
-        //            existingUnit.RentPerDay = bikeUnit.RentPerDay;
-
-        //            // Update images
-        //            if (bikeUnit.Images != null)
-        //            {
-        //                foreach (var image in bikeUnit.Images)
-        //                {
-        //                    var existingImage = existingUnit.Images.FirstOrDefault(i => i.Id == image.Id);
-        //                    if (existingImage != null)
-        //                    {
-        //                        existingImage.ImagePath = image.ImagePath; // Assuming you only update the ImagePath.
-        //                    }
-        //                    else
-        //                    {
-        //                        existingUnit.Images.Add(image);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    _context.Bikes.Update(existingBike);
-        //    await _context.SaveChangesAsync();
-
-        //    return existingBike;
-        //}
-
-
-        //public async Task<bool> UpdateBikeImages(List<Image> images, Guid unitId)
-        //{
-        //    var unit = await _context.BikeUnits.Include(bu => bu.Images).FirstOrDefaultAsync(bu => bu.UnitId == unitId);
-        //    if (unit == null)
-        //    {
-        //        throw new ArgumentException("Bike unit not found.");
-        //    }
-
-        //    // Remove old images
-        //    _context.Images.RemoveRange(unit.Images);
-
-        //    // Add new images
-        //    foreach (var image in images)
-        //    {
-        //        unit.Images.Add(image);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return true;
-        //}
-
-
+        public async Task<bool> UpdateBike(Bike bike)
+        {
+            _context.Bikes.Update(bike);
+            return await _context.SaveChangesAsync()> 0;
+        }
 
         public async Task<bool> UpadteUnit(BikeUnit bikeUnit)
         {
