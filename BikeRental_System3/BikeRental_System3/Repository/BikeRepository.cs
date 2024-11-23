@@ -90,6 +90,12 @@ namespace BikeRental_System3.Repository
             return await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bu => bu.Images).FirstOrDefaultAsync(b => b.Id == bikeId);
         }
 
+        public async Task<BikeUnit> GetUnitById(Guid unitId)
+        {
+            var data = await _context.BikeUnits.FirstOrDefaultAsync(x => x.UnitId == unitId);
+            return data;
+        }
+
         public async Task<bool> UpdateBike(Bike bike)
         {
             _context.Bikes.Update(bike);
@@ -102,9 +108,15 @@ namespace BikeRental_System3.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> UpdateBikeImages (List<Image> bikeImages)
+        public async Task<bool> UpdateBikeImages (Guid UnitId, List<Image> bikeImages)
         {
-            _context.Images.UpdateRange(bikeImages);
+            var findImage = await _context.Images.Where(x => x.UnitId == UnitId).ToListAsync();
+            if (findImage != null)
+            {
+                _context.Images.RemoveRange(findImage);
+                _context.Images.UpdateRange(bikeImages);
+            }
+            
             return await _context.SaveChangesAsync() > 0;
         }
 
