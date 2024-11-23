@@ -371,8 +371,9 @@ namespace BikeRental_System3.Services
                         });
                     }
                 }
+                //var findUnitId = await _bikeRepository.GetUnitById(unitId);
 
-                var imageUpdated = await _bikeRepository.UpdateBikeImages(bikeImages);
+                var imageUpdated = await _bikeRepository.UpdateBikeImages(bikeUnitUpdateDTO.UnitId, bikeImages);
                 if (!imageUpdated)
                 {
                     throw new Exception("Failed to update bike images");
