@@ -1,5 +1,7 @@
 ﻿using BikeRental_System3.Data;
 using BikeRental_System3.IRepository;
+using BikeRental_System3.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental_System3.Repository
 {
@@ -11,5 +13,15 @@ namespace BikeRental_System3.Repository
         {
             _context = context;
         }
+
+
+        public async Task<RentalRequest> PostRentalRequest(RentalRequest rentalRequest)
+        {
+            var data = await _context.RentalRequests.AddAsync(rentalRequest);
+            await _context.SaveChangesAsync();
+
+            return data.Entity;
+        }
+
     }
 }
