@@ -3,6 +3,7 @@ using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental_System3.Controllers
 {
@@ -41,6 +42,20 @@ namespace BikeRental_System3.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetRentalRequest(Guid id)
+        {
+            var rentalRequest = await _rentalRequestService.GetRentalRequest(id);
+
+            if (rentalRequest == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(rentalRequest);
         }
 
     }
