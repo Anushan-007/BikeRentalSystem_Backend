@@ -7,5 +7,6 @@ namespace BikeRental_System3.IRepository
         Task<RentalRequest> PostRentalRequest(RentalRequest rentalRequest);
         Task<List<RentalRequest>> GetRentalRequests();
         Task<List<RentalRequest>> GetRentalRequestsByStatus(Status? status);
+        Task<RentalRequest> GetRentalRequest(Guid id);
     }
 }

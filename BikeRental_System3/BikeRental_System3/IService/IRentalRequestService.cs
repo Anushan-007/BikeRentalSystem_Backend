@@ -7,5 +7,6 @@ namespace BikeRental_System3.IService
     {
         Task<RentalRequest> PostRentalRequest(RentalRequestRequest rentalReqRequest);
         Task<List<RentalRequest>> GetRentalRequests(Status? status);
+        Task<RentalRequest> GetRentalRequest(Guid id);
     }
 }

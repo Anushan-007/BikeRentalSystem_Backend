@@ -49,5 +49,15 @@ namespace BikeRental_System3.Services
             }
 
         }
+
+
+
+        public async Task<RentalRequest> GetRentalRequest(Guid id)
+        {
+            var data = await _repository.GetRentalRequest(id);
+            return data;
+        }
+
+
     }
 }
