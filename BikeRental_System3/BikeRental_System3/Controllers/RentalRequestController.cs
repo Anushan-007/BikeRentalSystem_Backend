@@ -1,5 +1,6 @@
 ﻿using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.IService;
+using BikeRental_System3.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +21,19 @@ namespace BikeRental_System3.Controllers
         [HttpPost]
         public async Task<IActionResult> PostRentalRequest([FromBody] RentalRequestRequest rentalReqRequest)
         {
+           
+                var data = await _rentalRequestService.PostRentalRequest(rentalReqRequest);
+                return Ok(data);
+       
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRentalRequest(Status? status)
+        {          
             try
             {
-                var data = await _rentalRequestService.PostRentalRequest(rentalReqRequest);
+                var data = await _rentalRequestService.GetRentalRequests(status);
                 return Ok(data);
             }
             catch (Exception ex)
