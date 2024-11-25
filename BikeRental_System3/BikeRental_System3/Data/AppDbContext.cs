@@ -51,7 +51,7 @@ namespace BikeRental_System3.Data
                     modelBuilder.Entity<RentalRequest>()
               .HasOne(r => r.User)
               .WithMany(u => u.RentalRequest)
-              .HasForeignKey(r => r.UserId)
+              .HasForeignKey(r => r.NicNumber)
               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RentalRecord>()
