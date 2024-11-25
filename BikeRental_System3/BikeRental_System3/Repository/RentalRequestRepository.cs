@@ -21,7 +21,20 @@ namespace BikeRental_System3.Repository
             await _context.SaveChangesAsync();
 
             return data.Entity;
+        
         }
 
+        public async Task<List<RentalRequest>> GetRentalRequests()
+        {
+            return await _context.RentalRequests.Where(r => r.Status == Status.Pending).Include(r => r.Bike).ToListAsync();
+        }
+
+        public async Task<List<RentalRequest>> GetRentalRequestsByStatus(Status? status)
+        {
+            return await _context.RentalRequests.Where(r => r.Status == status).Include(r => r.Bike).ToListAsync();
+        }
+
+
     }
+   
 }

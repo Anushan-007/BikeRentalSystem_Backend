@@ -3,6 +3,7 @@ using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
+using Microsoft.VisualBasic;
 
 namespace BikeRental_System3.Services
 {
@@ -32,6 +33,21 @@ namespace BikeRental_System3.Services
             };
             var data = await _repository.PostRentalRequest(rentalRequest);
             return data;
+        }
+
+
+
+        public async Task<List<RentalRequest>> GetRentalRequests(Status? status)
+        {
+            if (status == null)
+            {
+                return await _repository.GetRentalRequests();
+            }
+            else
+            {
+                return await _repository.GetRentalRequestsByStatus(status);
+            }
+
         }
     }
 }

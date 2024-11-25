@@ -6,5 +6,6 @@ namespace BikeRental_System3.IService
     public interface IRentalRequestService
     {
         Task<RentalRequest> PostRentalRequest(RentalRequestRequest rentalReqRequest);
+        Task<List<RentalRequest>> GetRentalRequests(Status? status);
     }
 }
