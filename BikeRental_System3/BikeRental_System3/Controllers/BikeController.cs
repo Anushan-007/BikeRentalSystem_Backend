@@ -69,20 +69,20 @@ namespace BikeRental_System3.Controllers
 
 
 
-        //[HttpGet("GetBikeById")]
-        //public async Task<IActionResult> GetBikeById(Guid Id)
-        //{
-        //    try
-        //    {
-        //        var data = await _bikeService.GetBikeById(Id);
-        //        return Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
+        [HttpGet("GetBikeById")]
+        public async Task<IActionResult> GetBikeById(String RegNo)
+        {
+            try
+            {
+                var data = await _bikeService.GetByRegNo(RegNo);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-        //}
+        }
 
 
         [HttpGet("{bikeId}")]

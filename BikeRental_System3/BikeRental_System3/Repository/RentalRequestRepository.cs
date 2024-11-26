@@ -46,6 +46,28 @@ namespace BikeRental_System3.Repository
             return request;
         }
 
+        public async Task<RentalRequest> UpdateRentalRequest(RentalRequest rentalRequest)
+        {
+            var data = _context.RentalRequests.Update(rentalRequest);
+            await _context.SaveChangesAsync();
+
+            return data.Entity;
+        }
+
+
+        public async Task<string> DeleteRentalRequest(Guid id)
+        {
+            var request = await _context.RentalRequests.FindAsync(id);
+            if (request == null)
+            {
+                throw new ArgumentException();
+            }
+
+            _context.RentalRequests.Remove(request);
+            await _context.SaveChangesAsync();
+
+            return "Successfully Deleted...";
+        }
 
     }
    

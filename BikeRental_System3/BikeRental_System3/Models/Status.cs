@@ -4,6 +4,7 @@
     {
         Pending = 1,
         Accepted,
-        Declined
+        Declined,
+        OnRent
     }
 }
