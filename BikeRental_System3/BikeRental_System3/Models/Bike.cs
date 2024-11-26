@@ -11,7 +11,7 @@ namespace BikeRental_System3.Models
         public string Model { get; set; }
 
         public List<BikeUnit> BikeUnits { get; set; } = new List<BikeUnit>();
-        public ICollection<Inventory>? Inventory { get; set; }
+        //public ICollection<Inventory>? Inventory { get; set; }
         public ICollection<RentalRequest>? RentalRequests { get; set; }
       
     }

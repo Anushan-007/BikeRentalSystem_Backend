@@ -39,6 +39,12 @@ namespace BikeRental_System3
             builder.Services.AddScoped<IRentalRequestRepository, RentalRequestRepository>();
             builder.Services.AddScoped<IRentalRequestService, RentalRequestService>();
 
+            builder.Services.AddScoped<IRentalRecordRepository, RentalRecordRepository>();
+            builder.Services.AddScoped<IRentalRecordService, RentalRecordService>();
+
+            builder.Services.AddScoped<IBikeUnitRepository, BikeUnitRepository>();
+            builder.Services.AddScoped<IBikeUnitService, BikeUnitService>();
+
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
             builder.Services.AddAuthentication()
                 .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters

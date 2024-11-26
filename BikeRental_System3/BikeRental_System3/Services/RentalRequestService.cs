@@ -10,10 +10,12 @@ namespace BikeRental_System3.Services
     public class RentalRequestService : IRentalRequestService
     { 
         private readonly IRentalRequestRepository _repository;
+        private readonly IBikeUnitRepository _unitRepository;
 
-        public RentalRequestService(IRentalRequestRepository repository)
+        public RentalRequestService(IRentalRequestRepository repository , IBikeUnitRepository  unitRepository)
         {
             _repository = repository;
+            _unitRepository = unitRepository;
         }
 
 
@@ -45,12 +47,19 @@ namespace BikeRental_System3.Services
             }
             else
             {
-                return await _repository.GetRentalRequestsByStatus(status);
+               var data  = await _repository.GetRentalRequestsByStatus(status);
+                foreach (var rentalRequest in data) {
+                    var units = new List<BikeUnit>();
+                    var getBike = rentalRequest.Bike;
+                    
+                    units = await _unitRepository.GetInventoryUnits(false , getBike.Id);
+                    getBike.BikeUnits = units;
+                   
+                }
+                return data;
             }
 
         }
-
-
 
         public async Task<RentalRequest> GetRentalRequest(Guid id)
         {
@@ -58,6 +67,42 @@ namespace BikeRental_System3.Services
             return data;
         }
 
+        public async Task<RentalRequest> UpdateRentalRequest(Guid id, RentalRequest rentalRequest)
+        {
+            var getRequest = await _repository.GetRentalRequest(id);
+            if (getRequest != null)
+            {
+                var data = await _repository.UpdateRentalRequest(rentalRequest);
+                return data;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+        }
+
+        public async Task<RentalRequest> AcceptRentalRequest(Guid Id)
+        {
+            var request = await _repository.GetRentalRequest(Id);
+            request.Status = Status.Accepted;
+            var data = await _repository.UpdateRentalRequest(request);
+            return data;
+        }
+        public async Task<RentalRequest> DeclineRentalRequest(Guid Id)
+        {
+            var request = await _repository.GetRentalRequest(Id);
+            request.Status = Status.Declined;
+            var data = await _repository.UpdateRentalRequest(request);
+            return data;
+        }
+
+
+        public async Task<string> DeleteRentalRequest(Guid id)
+        {
+            var data = await _repository.DeleteRentalRequest(id);
+            return data;
+        }
 
     }
 }

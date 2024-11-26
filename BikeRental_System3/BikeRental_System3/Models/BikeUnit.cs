@@ -11,8 +11,12 @@ namespace BikeRental_System3.Models
         public int Year { get; set; }
 
         public int RentPerDay { get; set; }
+        public bool Availability { get; set; }
+        public bool IsDeleted { get; set; }
         public List<Image>? Images { get; set; }
 
         public Bike? Bike { get; set; }
+        public ICollection<RentalRecord>? RentalRecords { get; set; }
+        
     }
 }

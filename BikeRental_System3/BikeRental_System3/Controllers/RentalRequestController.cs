@@ -58,5 +58,30 @@ namespace BikeRental_System3.Controllers
             return Ok(rentalRequest);
         }
 
+        [HttpGet("Accept-Request{id}")]
+        public async Task<IActionResult> AcceptRenatlRequest(Guid id)
+        {
+            var data = await _rentalRequestService.AcceptRentalRequest(id);
+            return Ok(data);
+        }
+        [HttpGet("Decline-Request{id}")]
+        public async Task<IActionResult> DeclineRenatlRequest(Guid id)
+        {
+            var data = await _rentalRequestService.DeclineRentalRequest(id);
+            return Ok(data);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRentalRequest(Guid id)
+        {
+            var data = await _rentalRequestService.DeleteRentalRequest(id);
+            if (string.IsNullOrEmpty(data))
+            {
+                return BadRequest("Failed to delete rental request.");
+            }
+
+            return NoContent();
+        }
+
     }
 }

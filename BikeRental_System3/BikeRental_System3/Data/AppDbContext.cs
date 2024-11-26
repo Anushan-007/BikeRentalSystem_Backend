@@ -37,15 +37,15 @@ namespace BikeRental_System3.Data
 
 
 
-            modelBuilder.Entity<Inventory>()
+            modelBuilder.Entity<BikeUnit>()
                 .HasOne(i => i.Bike)
-                .WithMany(b => b.Inventory)
+                .WithMany(b => b.BikeUnits)
                 .HasForeignKey(b => b.BikeId);
 
-            modelBuilder.Entity<Inventory>()
+            modelBuilder.Entity<BikeUnit>()
               .HasMany(i => i.RentalRecords)
-              .WithOne(r => r.inventory)
-              .HasForeignKey(r => r.RegistrationNumber);
+              .WithOne(r => r.bikeUnits)
+              .HasForeignKey(r => r.UnitId);
 
 
                     modelBuilder.Entity<RentalRequest>()
@@ -66,9 +66,9 @@ namespace BikeRental_System3.Data
               .HasForeignKey(r => r.NicNumber);
 
             modelBuilder.Entity<RentalRecord>()
-              .HasOne(r => r.inventory)
+              .HasOne(r => r.bikeUnits)
               .WithMany(u => u.RentalRecords)
-              .HasForeignKey(r => r.RegistrationNumber);
+              .HasForeignKey(r => r.UnitId);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -76,7 +76,7 @@ namespace BikeRental_System3.Data
         public DbSet<Bike> Bikes { get; set; }
         public DbSet<BikeUnit>BikeUnits { get; set; }
         public DbSet<Image> Images { get; set; }
-        public DbSet<Inventory> Inventories { get; set; }
+        //public DbSet<Inventory> Inventories { get; set; }
         public DbSet<RentalRecord> RentalRecords { get; set; }
         public DbSet<RentalRequest> RentalRequests { get; set; }
         public DbSet<User> Users { get; set; }
