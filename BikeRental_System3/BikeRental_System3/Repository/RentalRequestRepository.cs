@@ -34,6 +34,9 @@ namespace BikeRental_System3.Repository
             return await _context.RentalRequests.Where(r => r.Status == status).Include(r => r.Bike).ToListAsync();
         }
 
+
+
+
         public async Task<RentalRequest> GetRentalRequest(Guid id)
         {
             var request = await _context.RentalRequests.Include(r => r.Bike).SingleOrDefaultAsync(u => u.Id == id);
@@ -53,6 +56,8 @@ namespace BikeRental_System3.Repository
 
             return data.Entity;
         }
+
+
 
 
         public async Task<string> DeleteRentalRequest(Guid id)
