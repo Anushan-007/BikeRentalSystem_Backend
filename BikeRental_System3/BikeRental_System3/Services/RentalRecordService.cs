@@ -28,11 +28,11 @@ namespace BikeRental_System3.Services
             {
                 RentalRequestId = rentalRecRequest.RentalRequestId,
                 RentalOut = DateTime.Now,
-                BikeRegNo = rentalRecRequest.BikeRegNo,
+                RegistrationNumber = rentalRecRequest.RegistrationNumber,
             };
             
             var data = await _rentalRecordRepository.PostRentalRecord(RentalRecord);
-            var getUnit = await _bikeUnitRepository.GetInventoryUnit(rentalRecRequest.BikeRegNo);
+            var getUnit = await _bikeUnitRepository.GetInventoryUnit(rentalRecRequest.RegistrationNumber);
             getUnit.Availability = false;
             _bikeUnitRepository.PutInventoryUnit(getUnit);
             var getRequest = await _rentalRequestService.GetRentalRequest(rentalRecRequest.RentalRequestId);
