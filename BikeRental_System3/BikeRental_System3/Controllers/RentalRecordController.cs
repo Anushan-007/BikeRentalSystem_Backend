@@ -53,6 +53,21 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+
+        [HttpGet("get-payment{id}")]
+        public async Task<IActionResult> GetRentalRecordPayment(Guid id)
+        {
+            try
+            {
+                var data = await _recordService.GetPayment(id);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRentalRecord(Guid id, RentalRecord rentalRecord)
         {
