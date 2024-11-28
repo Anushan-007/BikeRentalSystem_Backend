@@ -37,17 +37,32 @@ namespace BikeRental_System3.Repository
 
 
 
+        //public async Task<RentalRequest> GetRentalRequest(Guid id)
+        //{
+        //    var request = await _context.RentalRequests.Include(r => r.Bike).SingleOrDefaultAsync(u => u.Id == id);
+
+        //    if (request == null)
+        //    {
+        //        throw new Exception();
+        //    }
+
+        //    return request;
+        //}
+
         public async Task<RentalRequest> GetRentalRequest(Guid id)
         {
-            var request = await _context.RentalRequests.Include(r => r.Bike).SingleOrDefaultAsync(u => u.Id == id);
+            var request = await _context.RentalRequests
+                .Include(r => r.Bike)
+                .SingleOrDefaultAsync(u => u.Id == id);
 
             if (request == null)
             {
-                throw new Exception();
+                throw new Exception("Rental request not found.");
             }
 
             return request;
         }
+
 
         public async Task<RentalRequest> UpdateRentalRequest(RentalRequest rentalRequest)
         {

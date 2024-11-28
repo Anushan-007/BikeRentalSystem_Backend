@@ -7,7 +7,8 @@ namespace BikeRental_System3.DTOs.Request
         public Guid BikeId { get; set; }
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
-        public int RentPerDay { get; set; }
+
+
     }
 }
 

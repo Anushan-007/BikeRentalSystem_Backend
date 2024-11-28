@@ -19,5 +19,6 @@ namespace BikeRental_System3.Models
         public string UserName { get; set; }
         public string? ProfileImage {  get; set; } 
         public ICollection<RentalRequest>? RentalRequest { get; set; }
+        public ICollection<RentalRecord>? RentalRecords { get; set; }
     }
 }

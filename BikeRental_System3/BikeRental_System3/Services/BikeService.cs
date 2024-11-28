@@ -42,6 +42,7 @@ namespace BikeRental_System3.Services
                 Brand = bikeRequest.Brand,
                 Type = bikeRequest.Type,
                 Model = bikeRequest.Model,
+                RentPerDay = bikeRequest.RentPerDay,
             };
             var addBike = _bikeRepository.AddBike(bike);
 
@@ -57,7 +58,7 @@ namespace BikeRental_System3.Services
                     BikeId = addBike.Result,
                     RegistrationNumber = bikeUnitRequest.RegistrationNumber,
                     Year = bikeUnitRequest.Year,
-                    RentPerDay = bikeUnitRequest.RentPerDay,
+                    //RentPerDay = bikeUnitRequest.RentPerDay,
                     //Images = images
                 };
 
@@ -75,12 +76,13 @@ namespace BikeRental_System3.Services
                 Brand = bike.Brand,
                 Type = bike.Type,
                 Model = bike.Model,
+                RentPerDay = bike.RentPerDay,
                 BikeUnits = bikeUnits.Select(p => new BikeUnitResponse
                 {
                     UnitId = p.UnitId,
                     RegistrationNumber = p.RegistrationNumber,
                     Year = p.Year,
-                    RentPerDay = p.RentPerDay
+                    
                 }).ToList()
             };
             return res;
@@ -108,7 +110,7 @@ namespace BikeRental_System3.Services
 
             var image = new Image
             {
-                UnitId = imageRequest.UnitId,
+                BikeUnitId = imageRequest.UnitId,
                 ImagePath = filePath
             };
             await _bikeRepository.AddBikeImages(image);
@@ -207,6 +209,7 @@ namespace BikeRental_System3.Services
                 Brand = b.Brand,
                 Type = b.Type,
                 Model = b.Model,
+                RentPerDay = b.RentPerDay,
                 BikeUnits = b.BikeUnits
                     .Where(bu => bu.Availability) // Only include available units
                     .Select(bu => new BikeUnitResponse
@@ -214,7 +217,7 @@ namespace BikeRental_System3.Services
                         UnitId = bu.UnitId,
                         RegistrationNumber = bu.RegistrationNumber,
                         Year = bu.Year,
-                        RentPerDay = bu.RentPerDay,
+                     
                         Availability = bu.Availability,
                         Images = bu.Images?.Select(img => new ImageResponse
                         {
@@ -269,12 +272,13 @@ namespace BikeRental_System3.Services
                 Brand = bike.Brand,
                 Type = bike.Type,
                 Model = bike.Model,
+                RentPerDay = bike.RentPerDay,
                 BikeUnits = bike.BikeUnits.Select(bu => new BikeUnitResponse
                 {
                     UnitId = bu.UnitId,
                     RegistrationNumber = bu.RegistrationNumber,
                     Year = bu.Year,
-                    RentPerDay = bu.RentPerDay,
+                   
                     Availability = bu.Availability,
                     Images = bu.Images?.Select(i => new ImageResponse
                     {
@@ -366,6 +370,7 @@ namespace BikeRental_System3.Services
             bike.Brand = bikeUnitUpdateDTO.Brand;
             bike.Type = bikeUnitUpdateDTO.Type;
             bike.Model = bikeUnitUpdateDTO.Model;
+            bike.RentPerDay = bikeUnitUpdateDTO.RentPerDay;
 
             // Loop through each BikeUnit to update the unit details
             foreach (var bikeUnit in bike.BikeUnits)
@@ -375,7 +380,6 @@ namespace BikeRental_System3.Services
                     // Update the BikeUnit details from the DTO
                     bikeUnit.RegistrationNumber = bikeUnitUpdateDTO.RegistrationNumber;
                     bikeUnit.Year = bikeUnitUpdateDTO.Year;
-                    bikeUnit.RentPerDay = bikeUnitUpdateDTO.RentPerDay;
                     bikeUnit.Availability = bikeUnitUpdateDTO.Availability; 
 
                     // Update the bike unit in the repository
@@ -411,7 +415,7 @@ namespace BikeRental_System3.Services
 
                         bikeImages.Add(new Image
                         {
-                            UnitId = bikeUnitUpdateDTO.UnitId,
+                            BikeUnitId = bikeUnitUpdateDTO.UnitId,
                             ImagePath = filePath,
                         });
                     }

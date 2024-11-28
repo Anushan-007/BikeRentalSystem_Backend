@@ -14,8 +14,8 @@ namespace BikeRental_System3.Models
 
         //public string Feedback { get; set; }
         public Guid RentalRequestId { get; set; }
-        public Guid? UnitId { get; set; }
+        public Guid? BikeUnitId { get; set; }
         public RentalRequest? RentalRequest { get; set; }
-        public BikeUnit? bikeUnits { get; set; }
+        public BikeUnit? BikeUnit { get; set; }
     }
 }

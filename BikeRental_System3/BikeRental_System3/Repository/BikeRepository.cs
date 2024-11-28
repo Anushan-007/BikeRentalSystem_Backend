@@ -121,7 +121,7 @@ namespace BikeRental_System3.Repository
 
         public async Task<bool> UpdateBikeImages (Guid UnitId, List<Image> bikeImages)
         {
-            var findImage = await _context.Images.Where(x => x.UnitId == UnitId).ToListAsync();
+            var findImage = await _context.Images.Where(x => x.BikeUnitId == UnitId).ToListAsync();
             if (findImage != null)
             {
                 _context.Images.RemoveRange(findImage);

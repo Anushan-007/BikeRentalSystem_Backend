@@ -9,7 +9,7 @@ namespace BikeRental_System3.Models
         [Key]
         public Guid Id { get; set; }
 
-        public Guid UnitId { get; set; }
+        public Guid BikeUnitId { get; set; }
 
         public string ImagePath { get; set; }
 

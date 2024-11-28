@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241128050410_avalaibility true")]
-    partial class avalaibilitytrue
+    [Migration("20241128105706_test")]
+    partial class test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,9 @@ namespace BikeRental_System3.Migrations
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RentPerDay")
+                        .HasColumnType("int");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -67,9 +70,6 @@ namespace BikeRental_System3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RentPerDay")
-                        .HasColumnType("int");
-
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
@@ -86,16 +86,16 @@ namespace BikeRental_System3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BikeUnitId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UnitId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UnitId");
+                    b.HasIndex("BikeUnitId");
 
                     b.ToTable("Images");
                 });
@@ -104,6 +104,9 @@ namespace BikeRental_System3.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BikeUnitId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("Payment")
@@ -121,15 +124,17 @@ namespace BikeRental_System3.Migrations
                     b.Property<DateTime?>("RentalReturn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UnitId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserNicNumber")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BikeUnitId");
 
                     b.HasIndex("RentalRequestId")
                         .IsUnique();
 
-                    b.HasIndex("UnitId");
+                    b.HasIndex("UserNicNumber");
 
                     b.ToTable("RentalRecords");
                 });
@@ -145,7 +150,7 @@ namespace BikeRental_System3.Migrations
 
                     b.Property<string>("NicNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RequestTime")
                         .HasColumnType("datetime2");
@@ -156,11 +161,14 @@ namespace BikeRental_System3.Migrations
                     b.Property<bool?>("UserAlert")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UserNicNumber")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BikeId");
 
-                    b.HasIndex("NicNumber");
+                    b.HasIndex("UserNicNumber");
 
                     b.ToTable("RentalRequests");
                 });
@@ -230,7 +238,7 @@ namespace BikeRental_System3.Migrations
                 {
                     b.HasOne("BikeRental_System3.Models.BikeUnit", "BikeUnit")
                         .WithMany("Images")
-                        .HasForeignKey("UnitId")
+                        .HasForeignKey("BikeUnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -239,19 +247,23 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRecord", b =>
                 {
+                    b.HasOne("BikeRental_System3.Models.BikeUnit", "BikeUnit")
+                        .WithMany("RentalRecords")
+                        .HasForeignKey("BikeUnitId");
+
                     b.HasOne("BikeRental_System3.Models.RentalRequest", "RentalRequest")
                         .WithOne("RentalRecord")
                         .HasForeignKey("BikeRental_System3.Models.RentalRecord", "RentalRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BikeRental_System3.Models.BikeUnit", "bikeUnits")
+                    b.HasOne("BikeRental_System3.Models.User", null)
                         .WithMany("RentalRecords")
-                        .HasForeignKey("UnitId");
+                        .HasForeignKey("UserNicNumber");
+
+                    b.Navigation("BikeUnit");
 
                     b.Navigation("RentalRequest");
-
-                    b.Navigation("bikeUnits");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRequest", b =>
@@ -264,9 +276,7 @@ namespace BikeRental_System3.Migrations
 
                     b.HasOne("BikeRental_System3.Models.User", "User")
                         .WithMany("RentalRequest")
-                        .HasForeignKey("NicNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserNicNumber");
 
                     b.Navigation("Bike");
 
@@ -294,6 +304,8 @@ namespace BikeRental_System3.Migrations
 
             modelBuilder.Entity("BikeRental_System3.Models.User", b =>
                 {
+                    b.Navigation("RentalRecords");
+
                     b.Navigation("RentalRequest");
                 });
 #pragma warning restore 612, 618
