@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241126060154_Inventory rejected")]
-    partial class Inventoryrejected
+    [Migration("20241128050410_avalaibility true")]
+    partial class avalaibilitytrue
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,8 +54,14 @@ namespace BikeRental_System3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("Availability")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("BikeId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
@@ -102,6 +108,9 @@ namespace BikeRental_System3.Migrations
 
                     b.Property<decimal?>("Payment")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RentalOut")
                         .HasColumnType("datetime2");
