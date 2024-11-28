@@ -11,7 +11,7 @@ namespace BikeRental_System3.Models
         public int Year { get; set; }
 
         public int RentPerDay { get; set; }
-        public bool Availability { get; set; }
+        public bool Availability { get; set; } = true;
         public bool IsDeleted { get; set; }
         public List<Image>? Images { get; set; }
 
