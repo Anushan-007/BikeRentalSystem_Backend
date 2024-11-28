@@ -24,11 +24,11 @@ namespace BikeRental_System3.Repository
 
         public async Task<List<RentalRecord>> GetRentalRecords()
         {
-            return await _context.RentalRecords.ToListAsync();
+            return await _context.RentalRecords.Where(r => r.RentalReturn != null).Include(r => r.RentalRequest).ToListAsync();
         }
         public async Task<List<RentalRecord>> GetIncompleteRentalRecords()
         {
-            var data = await _context.RentalRecords.Where(r => r.RentalReturn == null).ToListAsync();
+            var data = await _context.RentalRecords.Where(r => r.RentalReturn == null).Include(r => r.RentalRequest).ToListAsync();
             return data;
         }
 

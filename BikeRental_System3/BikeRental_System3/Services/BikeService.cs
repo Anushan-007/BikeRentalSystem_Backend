@@ -147,6 +147,46 @@ namespace BikeRental_System3.Services
         //    return list;
         //}
 
+        //public async Task<List<BikeResponse>> GetAllBikesAsync()
+        //{
+        //    var bikes = await _bikeRepository.GetAllBikes();
+
+        //    // Log the bikes and their images to debug
+        //    foreach (var bike in bikes)
+        //    {
+        //        foreach (var unit in bike.BikeUnits)
+        //        {
+        //            Console.WriteLine($"BikeUnit {unit.UnitId} Images: {unit.Images?.Count ?? 0}");
+        //        }
+        //    }
+
+        //    // Continue mapping as usual
+        //    var bikeDtos = bikes.Select(b => new BikeResponse
+        //    {
+        //        Id = b.Id,
+        //        Brand = b.Brand,
+        //        Type = b.Type,
+        //        Model = b.Model,
+        //        BikeUnits = b.BikeUnits.Select(bu => new BikeUnitResponse
+        //        {
+        //            UnitId = bu.UnitId,
+        //            RegistrationNumber = bu.RegistrationNumber,
+        //            Year = bu.Year,
+        //            RentPerDay = bu.RentPerDay,
+        //            Availability = bu.Availability,
+        //            Images = bu.Images?.Select(img => new ImageResponse
+        //            {
+        //                Id = img.Id,
+        //                ImagePath = img.ImagePath.Replace("wwwroot\\", "").Replace("\\", "//")
+
+        //            }).ToList() ?? new List<ImageResponse>()
+        //        }).ToList()
+        //    }).ToList();
+
+        //    return bikeDtos;
+        //}
+
+
         public async Task<List<BikeResponse>> GetAllBikesAsync()
         {
             var bikes = await _bikeRepository.GetAllBikes();
@@ -156,34 +196,37 @@ namespace BikeRental_System3.Services
             {
                 foreach (var unit in bike.BikeUnits)
                 {
-                    Console.WriteLine($"BikeUnit {unit.UnitId} Images: {unit.Images?.Count ?? 0}");
+                    Console.WriteLine($"BikeUnit {unit.UnitId} Images: {unit.Images?.Count ?? 0} Availability: {unit.Availability}");
                 }
             }
 
-            // Continue mapping as usual
+            // Continue mapping as usual, but filter out unavailable bike units
             var bikeDtos = bikes.Select(b => new BikeResponse
             {
                 Id = b.Id,
                 Brand = b.Brand,
                 Type = b.Type,
                 Model = b.Model,
-                BikeUnits = b.BikeUnits.Select(bu => new BikeUnitResponse
-                {
-                    UnitId = bu.UnitId,
-                    RegistrationNumber = bu.RegistrationNumber,
-                    Year = bu.Year,
-                    RentPerDay = bu.RentPerDay,
-                    Images = bu.Images?.Select(img => new ImageResponse
+                BikeUnits = b.BikeUnits
+                    .Where(bu => bu.Availability) // Only include available units
+                    .Select(bu => new BikeUnitResponse
                     {
-                        Id = img.Id,
-                        ImagePath = img.ImagePath.Replace("wwwroot\\", "").Replace("\\", "//")
-
-                    }).ToList() ?? new List<ImageResponse>()
-                }).ToList()
+                        UnitId = bu.UnitId,
+                        RegistrationNumber = bu.RegistrationNumber,
+                        Year = bu.Year,
+                        RentPerDay = bu.RentPerDay,
+                        Availability = bu.Availability,
+                        Images = bu.Images?.Select(img => new ImageResponse
+                        {
+                            Id = img.Id,
+                            ImagePath = img.ImagePath.Replace("wwwroot\\", "").Replace("\\", "//")
+                        }).ToList() ?? new List<ImageResponse>()
+                    }).ToList()
             }).ToList();
 
             return bikeDtos;
         }
+
 
 
 
@@ -232,6 +275,7 @@ namespace BikeRental_System3.Services
                     RegistrationNumber = bu.RegistrationNumber,
                     Year = bu.Year,
                     RentPerDay = bu.RentPerDay,
+                    Availability = bu.Availability,
                     Images = bu.Images?.Select(i => new ImageResponse
                     {
                         Id = i.Id,
@@ -332,6 +376,7 @@ namespace BikeRental_System3.Services
                     bikeUnit.RegistrationNumber = bikeUnitUpdateDTO.RegistrationNumber;
                     bikeUnit.Year = bikeUnitUpdateDTO.Year;
                     bikeUnit.RentPerDay = bikeUnitUpdateDTO.RentPerDay;
+                    bikeUnit.Availability = bikeUnitUpdateDTO.Availability; 
 
                     // Update the bike unit in the repository
                     var unitUpdated = await _bikeRepository.UpadteUnit(bikeUnit);

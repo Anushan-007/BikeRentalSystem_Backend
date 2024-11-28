@@ -9,6 +9,8 @@
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
         public int RentPerDay { get; set; }
+        public bool Availability { get; set; } = true;
+
         public List<IFormFile> BikeImages { get; set; } = new List<IFormFile>();
     }
 }

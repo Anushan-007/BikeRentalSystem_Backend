@@ -67,10 +67,27 @@ namespace BikeRental_System3.Repository
 
         }
 
+        //public async Task<List<Bike>> GetAllBikes()
+        //{
+        //    var data = await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bi => bi.Images).ToListAsync();
+        //    return data;
+        //}
+
         public async Task<List<Bike>> GetAllBikes()
         {
-            var data = await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bi => bi.Images).ToListAsync();
+            var data = await _context.Bikes
+                .Include(b => b.BikeUnits)
+                    .ThenInclude(bi => bi.Images)
+                .Where(b => b.BikeUnits.Any(bu => bu.Availability))  // Only bikes with at least one available unit
+                .ToListAsync();
             return data;
+        }
+
+
+
+        public async Task<Bike> GetBikeByIdAsync(Guid bikeId)
+        {
+            return await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bu => bu.Images).FirstOrDefaultAsync(b => b.Id == bikeId);
         }
 
 
@@ -83,12 +100,6 @@ namespace BikeRental_System3.Repository
         //    }
         //    return data;
         //}
-
-
-        public async Task<Bike> GetBikeByIdAsync(Guid bikeId)
-        {
-            return await _context.Bikes.Include(b => b.BikeUnits).ThenInclude(bu => bu.Images).FirstOrDefaultAsync(b => b.Id == bikeId);
-        }
 
         public async Task<BikeUnit> GetUnitById(Guid unitId)
         {
