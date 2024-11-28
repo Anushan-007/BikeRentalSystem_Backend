@@ -11,6 +11,7 @@ namespace BikeRental_System3.Models
         public decimal? Payment {  get; set; }
         public string? RegistrationNumber { get; set; }
 
+
         //public string Feedback { get; set; }
         public Guid RentalRequestId { get; set; }
         public Guid? UnitId { get; set; }

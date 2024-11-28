@@ -10,6 +10,7 @@ namespace BikeRental_System3.IRepository
         Task<bool> AddBikeImages(Image imageRequest);
         Task<Bike> GetByRegNo(string RegNo);
         Task<List<Bike>> GetAllBikes();
+        //Task<List<Bike>> GetAllBikes();
         //Task<Bike> GetBikeById(Guid Id);
         Task<Bike> GetBikeByIdAsync(Guid bikeId);
         Task<BikeUnit> GetUnitById(Guid unitId);

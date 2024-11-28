@@ -53,6 +53,20 @@ namespace BikeRental_System3.Controllers
         }
 
 
+        //[HttpGet("GetAllBikes")]
+        //public async Task<IActionResult> GetAllBikes()
+        //{
+        //    try
+        //    {
+        //        var bikes = await _bikeService.GetAllBikesAsync();
+        //        return Ok(bikes);
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
         [HttpGet("GetAllBikes")]
         public async Task<IActionResult> GetAllBikes()
         {
@@ -61,11 +75,12 @@ namespace BikeRental_System3.Controllers
                 var bikes = await _bikeService.GetAllBikesAsync();
                 return Ok(bikes);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
 
 

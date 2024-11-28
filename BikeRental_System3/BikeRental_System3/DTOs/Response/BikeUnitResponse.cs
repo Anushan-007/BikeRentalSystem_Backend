@@ -8,6 +8,7 @@ namespace BikeRental_System3.DTOs.Response
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
         public int RentPerDay { get; set; }
+        public bool Availability { get; set; } = true;
         public List<ImageResponse> Images { get; set; }
     }
 }
