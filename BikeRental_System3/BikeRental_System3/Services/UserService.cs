@@ -37,7 +37,14 @@ namespace BikeRental_System3.Services
                 roles = userRequest.roles,
                 UserName = userRequest.UserName,
                 ProfileImage = userRequest.ProfileImage,
+                IsBlocked = false,
             };
+
+            if (userRequest.roles == Roles.Admin)
+            {
+                users.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin");
+                users.UserName = "admin";
+            }
 
             var data = await _userRepository.UserRegister(users);
             var res = new UserResponse
