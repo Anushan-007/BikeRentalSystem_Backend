@@ -173,6 +173,33 @@ namespace BikeRental_System3.Services
         }
 
 
+        public async Task<RentalRecord> CompleteRentalRecord(Guid id, RentalRecordUpdateRequest rentalRecPutRequest)
+        {
+            var getRecord = await _rentalRecordRepository.GetRentalRecord(id);
+            if (getRecord != null)
+            {
+                getRecord.RentalReturn = DateTime.Now;
+                getRecord.Payment = rentalRecPutRequest.Payment;
+
+               // var rentalRecRequest = new RentalRecordRequest();
+                var getUnit = await _bikeUnitRepository.GetInventoryUnit(getRecord.RegistrationNumber);
+                if (getUnit == null)
+                {
+                    throw new Exception("bike unit Not Found");
+                }
+                getUnit.Availability = true;
+                await _bikeUnitRepository.PutInventoryUnit(getUnit);
+
+                var data = await _rentalRecordRepository.UpdateRentalRecord(getRecord);
+                return data;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+        }
+
 
     }
 }

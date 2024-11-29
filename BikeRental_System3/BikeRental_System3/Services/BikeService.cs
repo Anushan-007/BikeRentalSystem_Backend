@@ -211,7 +211,7 @@ namespace BikeRental_System3.Services
                 Model = b.Model,
                 RentPerHour = b.RentPerHour,
                 BikeUnits = b.BikeUnits
-                    .Where(bu => bu.Availability) // Only include available units
+                    .Where(bu => bu.Availability == true) // Only include available units
                     .Select(bu => new BikeUnitResponse
                     {
                         UnitId = bu.UnitId,
