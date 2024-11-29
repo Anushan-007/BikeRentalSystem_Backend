@@ -133,7 +133,7 @@ namespace BikeRental_System3.Services
                 throw new Exception($"Bike unit not found for rental request with ID: {getRequest.Id}");
             }
 
-            var getRate = getRequest.Bike.RentPerDay;
+            var getRate = getRequest.Bike.RentPerHour;
 
             // Check if RentalOut is set
             if (data.RentalOut == null)

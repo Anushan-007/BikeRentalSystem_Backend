@@ -9,7 +9,7 @@ namespace BikeRental_System3.Models
         public string Brand { get; set; }
         public string Type { get; set; }
         public string Model { get; set; }
-        public int RentPerDay { get; set; }
+        public int RentPerHour { get; set; }
 
         public List<BikeUnit> BikeUnits { get; set; } = new List<BikeUnit>();
         //public ICollection<Inventory>? Inventory { get; set; }
