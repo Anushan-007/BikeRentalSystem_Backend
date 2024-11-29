@@ -7,7 +7,7 @@
         public string Type { get; set; }
 
         public string Model { get; set; }
-        public int RentPerDay { get; set; }
+        public int RentPerHour { get; set; }
         public string RegistrationNumber { get; set; }
         public int Year { get; set; }
        

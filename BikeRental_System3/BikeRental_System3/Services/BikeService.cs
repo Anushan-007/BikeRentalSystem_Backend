@@ -42,7 +42,7 @@ namespace BikeRental_System3.Services
                 Brand = bikeRequest.Brand,
                 Type = bikeRequest.Type,
                 Model = bikeRequest.Model,
-                RentPerDay = bikeRequest.RentPerDay,
+                RentPerHour = bikeRequest.RentPerHour,
             };
             var addBike = _bikeRepository.AddBike(bike);
 
@@ -76,7 +76,7 @@ namespace BikeRental_System3.Services
                 Brand = bike.Brand,
                 Type = bike.Type,
                 Model = bike.Model,
-                RentPerDay = bike.RentPerDay,
+                RentPerHour = bike.RentPerHour,
                 BikeUnits = bikeUnits.Select(p => new BikeUnitResponse
                 {
                     UnitId = p.UnitId,
@@ -209,7 +209,7 @@ namespace BikeRental_System3.Services
                 Brand = b.Brand,
                 Type = b.Type,
                 Model = b.Model,
-                RentPerDay = b.RentPerDay,
+                RentPerHour = b.RentPerHour,
                 BikeUnits = b.BikeUnits
                     .Where(bu => bu.Availability) // Only include available units
                     .Select(bu => new BikeUnitResponse
@@ -272,7 +272,7 @@ namespace BikeRental_System3.Services
                 Brand = bike.Brand,
                 Type = bike.Type,
                 Model = bike.Model,
-                RentPerDay = bike.RentPerDay,
+                RentPerHour = bike.RentPerHour,
                 BikeUnits = bike.BikeUnits.Select(bu => new BikeUnitResponse
                 {
                     UnitId = bu.UnitId,
@@ -370,7 +370,7 @@ namespace BikeRental_System3.Services
             bike.Brand = bikeUnitUpdateDTO.Brand;
             bike.Type = bikeUnitUpdateDTO.Type;
             bike.Model = bikeUnitUpdateDTO.Model;
-            bike.RentPerDay = bikeUnitUpdateDTO.RentPerDay;
+            bike.RentPerHour = bikeUnitUpdateDTO.RentPerHour;
 
             // Loop through each BikeUnit to update the unit details
             foreach (var bikeUnit in bike.BikeUnits)

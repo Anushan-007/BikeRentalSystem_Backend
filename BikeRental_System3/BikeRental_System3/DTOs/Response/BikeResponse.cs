@@ -8,7 +8,7 @@ namespace BikeRental_System3.DTOs.Response
         public string Brand { get; set; }
         public string Type { get; set; }
         public string Model { get; set; }
-        public int RentPerDay { get; set; }
+        public int RentPerHour { get; set; }
         public List<BikeUnitResponse> BikeUnits { get; set; }
 
     }
