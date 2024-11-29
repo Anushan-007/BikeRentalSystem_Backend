@@ -12,6 +12,7 @@ namespace BikeRental_System3.IRepository
         Task<List<Bike>> GetAllBikes();
         //Task<List<Bike>> GetAllBikes();
         //Task<Bike> GetBikeById(Guid Id);
+        Task<List<Bike>> AllBikes();
         Task<Bike> GetBikeByIdAsync(Guid bikeId);
         Task<BikeUnit> GetUnitById(Guid unitId);
         Task<bool> UpadteUnit(BikeUnit bikeUnit);

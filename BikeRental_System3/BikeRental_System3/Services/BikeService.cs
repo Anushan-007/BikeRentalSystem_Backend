@@ -231,7 +231,45 @@ namespace BikeRental_System3.Services
         }
 
 
+        public async Task<List<BikeResponse>> AllBikes()
+        {
+            var bikes = await _bikeRepository.AllBikes();
 
+            // Log the bikes and their images to debug
+            foreach (var bike in bikes)
+            {
+                foreach (var unit in bike.BikeUnits)
+                {
+                    Console.WriteLine($"BikeUnit {unit.UnitId} Images: {unit.Images?.Count ?? 0} Availability: {unit.Availability}");
+                }
+            }
+
+            // Continue mapping as usual, but filter out unavailable bike units
+            var bikeDtos = bikes.Select(b => new BikeResponse
+            {
+                Id = b.Id,
+                Brand = b.Brand,
+                Type = b.Type,
+                Model = b.Model,
+                RentPerHour = b.RentPerHour,
+                BikeUnits = b.BikeUnits
+                    .Select(bu => new BikeUnitResponse
+                    {
+                        UnitId = bu.UnitId,
+                        RegistrationNumber = bu.RegistrationNumber,
+                        Year = bu.Year,
+
+                        Availability = bu.Availability,
+                        Images = bu.Images?.Select(img => new ImageResponse
+                        {
+                            Id = img.Id,
+                            ImagePath = img.ImagePath.Replace("wwwroot\\", "").Replace("\\", "//")
+                        }).ToList() ?? new List<ImageResponse>()
+                    }).ToList()
+            }).ToList();
+
+            return bikeDtos;
+        }
 
 
         //public async Task<BikeResponse> GetBikeById(Guid Id)
@@ -440,17 +478,17 @@ namespace BikeRental_System3.Services
         }
 
 
-        //    public async Task<string> DeleteBike(Guid Id)
-        //    {
-        //        var get = await _bikeRepository.GetBikeById(Id);
-        //        if (get == null)
-        //        {
-        //            throw new NotFoundException($"Bike with ID {Id} was not found.");
-        //        }
+        public async Task<string> DeleteBike(Guid Id)
+        {
+            var get = await _bikeRepository.GetBikeByIdAsync(Id);
+            if (get == null)
+            {
+                throw new NotFoundException($"Bike with ID {Id} was not found.");
+            }
 
-        //        var data = await _bikeRepository.DeleteBike(get);
-        //        return "Successfully Deleted";
-        //    }
+            var data = await _bikeRepository.DeleteBike(get);
+            return "Successfully Deleted";
+        }
 
         public class NotFoundException : Exception
         {
