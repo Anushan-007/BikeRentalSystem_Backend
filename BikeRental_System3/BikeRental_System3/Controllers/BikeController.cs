@@ -81,6 +81,19 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+        [HttpGet("AllBikes")]
+        public async Task<IActionResult> AllBikes()
+        {
+            try
+            {
+                var bikes = await _bikeService.AllBikes();
+                return Ok(bikes);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
 
@@ -145,19 +158,19 @@ namespace BikeRental_System3.Controllers
 
 
 
-        //[HttpDelete("DeleteBike")]
-        //public async Task<IActionResult> DeleteBike(Guid Id)
-        //{
-        //    try
-        //    {
-        //        var data = await _bikeService.DeleteBike(Id);
-        //        return Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [HttpDelete("DeleteBike")]
+        public async Task<IActionResult> DeleteBike(Guid Id)
+        {
+            try
+            {
+                var data = await _bikeService.DeleteBike(Id);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

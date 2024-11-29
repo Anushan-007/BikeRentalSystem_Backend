@@ -30,5 +30,32 @@ namespace BikeRental_System3.Controllers
 
         }
 
+        [HttpGet("availablityUnits")]
+        public async Task<IActionResult> GetAvailablityUnits(bool? availability)
+        {
+            try
+            {
+                var data = await _bikeUnitService.GetAvailablityUnits(availability);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteBikeUnit(string regNo)
+        {
+            try
+            {
+                var data = await _bikeUnitService.DeleteBikeUnit(regNo);
+                return Ok(data);
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

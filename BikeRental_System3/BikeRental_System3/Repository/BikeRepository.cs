@@ -83,6 +83,15 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
+        public async Task<List<Bike>> AllBikes()
+        {
+            var data = await _context.Bikes
+                .Include(b => b.BikeUnits)
+                    .ThenInclude(bi => bi.Images)
+                .ToListAsync();
+            return data;
+        }
+
 
 
         public async Task<Bike> GetBikeByIdAsync(Guid bikeId)
