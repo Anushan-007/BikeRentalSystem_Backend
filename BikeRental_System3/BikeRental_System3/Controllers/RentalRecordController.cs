@@ -83,5 +83,13 @@ namespace BikeRental_System3.Controllers
 
         }
 
+
+        [HttpPut("complete-record")]
+        public async Task<IActionResult> CompleteRentalRecord(Guid id, RentalRecordUpdateRequest rentalRecPutRequest)
+        {
+            var data = await _recordService.CompleteRentalRecord(id, rentalRecPutRequest);
+            return Ok(data);
+        }
+
     }
 }
