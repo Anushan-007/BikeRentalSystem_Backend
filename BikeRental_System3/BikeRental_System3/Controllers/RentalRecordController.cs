@@ -68,6 +68,21 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+        [HttpGet("Get-overdue")]
+        public async Task<IActionResult> GetOverDueRentals()
+        {
+            try
+            {
+                var data = await _recordService.GetOverDueRentals();
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRentalRecord(Guid id, RentalRecord rentalRecord)
         {

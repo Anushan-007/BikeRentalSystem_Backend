@@ -12,6 +12,7 @@ namespace BikeRental_System3.IService
         Task<RentalRecord> UpdateRentalRecord(Guid id, RentalRecord rentalRecord);
         Task<PaymentResponse> GetPayment(Guid id);
         Task<RentalRecord> CompleteRentalRecord(Guid id, RentalRecordUpdateRequest rentalRecPutRequest);
+        Task<List<RentalRecord>> GetOverDueRentals();
 
     }
 }
