@@ -157,6 +157,22 @@ namespace BikeRental_System3.Services
 
 
 
+        public async Task<List<RentalRecord>> GetOverDueRentals()
+        {
+            var data = await _rentalRecordRepository.GetIncompleteRentalRecords();
+            var overdue = new List<RentalRecord>();
+            var now = DateTime.Now;
+            foreach (RentalRecord record in data)
+            {
+                if (now.Subtract((DateTime)record.RentalOut).Days > 7)
+                {
+                    overdue.Add(record);
+                }
+            }
+            return overdue;
+        }
+
+
         public async Task<RentalRecord> UpdateRentalRecord(Guid id, RentalRecord rentalRecord)
         {
             var getRecord = await _rentalRecordRepository.GetRentalRecord(id);

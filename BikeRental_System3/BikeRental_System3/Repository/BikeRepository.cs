@@ -116,11 +116,7 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
-        public async Task<bool> UpdateBike(Bike bike)
-        {
-            _context.Bikes.Update(bike);
-            return await _context.SaveChangesAsync()> 0;
-        }
+      
 
         public async Task<bool> UpadteUnit(BikeUnit bikeUnit)
         {
@@ -137,6 +133,12 @@ namespace BikeRental_System3.Repository
                 _context.Images.UpdateRange(bikeImages);
             }
             
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateBike(Bike bike)
+        {
+            _context.Bikes.Update(bike);
             return await _context.SaveChangesAsync() > 0;
         }
 
