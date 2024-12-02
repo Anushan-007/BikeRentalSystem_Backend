@@ -34,7 +34,7 @@ namespace BikeRental_System3.Services
                 Address = userRequest.Address,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userRequest.Password),
                 AccountCreated = DateTime.Now,
-                roles = userRequest.roles,
+                roles = (Roles)userRequest.roles,
                 UserName = userRequest.UserName,
                 ProfileImage = userRequest.ProfileImage,
                 IsBlocked = false,
@@ -174,9 +174,9 @@ namespace BikeRental_System3.Services
             get.Email = userRequest.Email;
             get.ContactNo = userRequest.ContactNo;
             get.Address = userRequest.Address;
-            get.PasswordHash = userRequest.Password;
+            get.PasswordHash = userRequest.Password?? get.PasswordHash;
             get.UserName = userRequest.UserName;
-            get.ProfileImage = userRequest.ProfileImage;
+            get.ProfileImage = userRequest.ProfileImage?? get.ProfileImage;
 
             if (get == null)
             {

@@ -93,15 +93,11 @@ namespace BikeRental_System3.Controllers
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser(string NicNumber, UserRequest userRequest)
         {
-            try
-            {
+            
                 var data = await _userService.UpdateUser(NicNumber, userRequest);
                 return Ok(data);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            
+          
         }
 
         [HttpDelete("DeleteUser")]

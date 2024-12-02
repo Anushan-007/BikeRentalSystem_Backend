@@ -18,6 +18,6 @@ namespace BikeRental_System3.IRepository
         Task<bool> UpadteUnit(BikeUnit bikeUnit);
         Task<bool> UpdateBikeImages(Guid UnitId, List<Image> bikeImages);
         Task<string> DeleteBike(Bike bike);
-
+        Task<Bike> UpdateBike(Bike bike);
     }
 }
