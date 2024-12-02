@@ -136,10 +136,12 @@ namespace BikeRental_System3.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> UpdateBike(Bike bike)
+        public async Task<Bike> UpdateBike(Bike bike)
         {
-            _context.Bikes.Update(bike);
-            return await _context.SaveChangesAsync() > 0;
+          var data =  _context.Bikes.Update(bike);
+
+            await _context.SaveChangesAsync();
+            return data.Entity;
         }
 
         public async Task<string> DeleteBike(Bike bike)

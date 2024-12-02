@@ -411,68 +411,69 @@ namespace BikeRental_System3.Services
             bike.RentPerHour = bikeUnitUpdateDTO.RentPerHour;
 
             // Loop through each BikeUnit to update the unit details
-            foreach (var bikeUnit in bike.BikeUnits)
-            {
-                if (bikeUnit.UnitId == bikeUnitUpdateDTO.UnitId)
-                {
-                    // Update the BikeUnit details from the DTO
-                    bikeUnit.RegistrationNumber = bikeUnitUpdateDTO.RegistrationNumber;
-                    bikeUnit.Year = bikeUnitUpdateDTO.Year;
-                    bikeUnit.Availability = bikeUnitUpdateDTO.Availability; 
+            //foreach (var bikeUnit in bike.BikeUnits)
+            //{
+            //    if (bikeUnit.UnitId == bikeUnitUpdateDTO.UnitId)
+            //    {
+            //        // Update the BikeUnit details from the DTO
+            //        bikeUnit.RegistrationNumber = bikeUnitUpdateDTO.RegistrationNumber;
+            //        bikeUnit.Year = bikeUnitUpdateDTO.Year;
+            //        bikeUnit.Availability = bikeUnitUpdateDTO.Availability; 
 
-                    // Update the bike unit in the repository
-                    var unitUpdated = await _bikeRepository.UpadteUnit(bikeUnit);
-                    if (!unitUpdated)
-                    {
-                        throw new Exception("Failed to update bike unit");
-                    }
-                }
-            }
+            //        // Update the bike unit in the repository
+            //        var unitUpdated = await _bikeRepository.UpadteUnit(bikeUnit);
+            //        if (!unitUpdated)
+            //        {
+            //            throw new Exception("Failed to update bike unit");
+            //        }
+            //    }
+            //}
 
-            // Handle updating images for the bike unit
-            if (bikeUnitUpdateDTO.BikeImages != null && bikeUnitUpdateDTO.BikeImages.Any())
-            {
-                var imageDirectory = Path.Combine("wwwroot", "bike_images");
-                if (!Directory.Exists(imageDirectory))
-                {
-                    Directory.CreateDirectory(imageDirectory);
-                }
+            //// Handle updating images for the bike unit
+            //if (bikeUnitUpdateDTO.BikeImages != null && bikeUnitUpdateDTO.BikeImages.Any())
+            //{
+            //    var imageDirectory = Path.Combine("wwwroot", "bike_images");
+            //    if (!Directory.Exists(imageDirectory))
+            //    {
+            //        Directory.CreateDirectory(imageDirectory);
+            //    }
 
-                var bikeImages = new List<Image>();
-                foreach (var bikeImage in bikeUnitUpdateDTO.BikeImages)
-                {
-                    if (bikeImage != null && bikeImage.Length > 0)
-                    {
-                        var uniqueFileName = $"{Guid.NewGuid()}_{bikeImage.FileName}";
-                        var filePath = Path.Combine(imageDirectory, uniqueFileName);
+            //    var bikeImages = new List<Image>();
+            //    foreach (var bikeImage in bikeUnitUpdateDTO.BikeImages)
+            //    {
+            //        if (bikeImage != null && bikeImage.Length > 0)
+            //        {
+            //            var uniqueFileName = $"{Guid.NewGuid()}_{bikeImage.FileName}";
+            //            var filePath = Path.Combine(imageDirectory, uniqueFileName);
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await bikeImage.CopyToAsync(stream);
-                        }
+            //            using (var stream = new FileStream(filePath, FileMode.Create))
+            //            {
+            //                await bikeImage.CopyToAsync(stream);
+            //            }
 
-                        bikeImages.Add(new Image
-                        {
-                            BikeUnitId = bikeUnitUpdateDTO.UnitId,
-                            ImagePath = filePath,
-                        });
-                    }
-                }
-                //var findUnitId = await _bikeRepository.GetUnitById(unitId);
+            //            bikeImages.Add(new Image
+            //            {
+            //                BikeUnitId = bikeUnitUpdateDTO.UnitId,
+            //                ImagePath = filePath,
+            //            });
+            //        }
+            //    }
+            //    //var findUnitId = await _bikeRepository.GetUnitById(unitId);
 
-                var imageUpdated = await _bikeRepository.UpdateBikeImages(bikeUnitUpdateDTO.UnitId, bikeImages);
-                if (!imageUpdated)
-                {
-                    throw new Exception("Failed to update bike images");
-                }
-            }
+            //    var imageUpdated = await _bikeRepository.UpdateBikeImages(bikeUnitUpdateDTO.UnitId, bikeImages);
+            //    if (!imageUpdated)
+            //    {
+            //        throw new Exception("Failed to update bike images");
+            //    }
+            //}
 
-            // Save the updated bike
-            var bikeUpdated = await _bikeRepository.UpadteUnit(bike.BikeUnits.FirstOrDefault(bu => bu.UnitId == bikeUnitUpdateDTO.UnitId));
-            if (!bikeUpdated)
-            {
-                throw new Exception("Failed to update the bike");
-            }
+            //// Save the updated bike
+            //var bikeUpdated = await _bikeRepository.UpadteUnit(bike.BikeUnits.FirstOrDefault(bu => bu.UnitId == bikeUnitUpdateDTO.UnitId));
+            //if (!bikeUpdated)
+            //{
+            //    throw new Exception("Failed to update the bike");
+            //}
+            var updated = await _bikeRepository.UpdateBike(bike);
 
             return true;
         }
