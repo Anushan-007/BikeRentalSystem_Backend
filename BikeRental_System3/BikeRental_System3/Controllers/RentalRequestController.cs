@@ -58,6 +58,13 @@ namespace BikeRental_System3.Controllers
             return Ok(rentalRequest);
         }
 
+        [HttpGet("user/{nicNumber}")]
+        public async Task<IActionResult> GetRentalRequestbyNic(string nicNumber)
+        {
+            var data = await _rentalRequestService.GetRentalRequestbyNic(nicNumber);
+            return Ok(data);
+        }
+
         [HttpGet("Accept-Request{id}")]
         public async Task<IActionResult> AcceptRenatlRequest(Guid id)
         {

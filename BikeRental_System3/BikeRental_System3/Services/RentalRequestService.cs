@@ -1,4 +1,5 @@
 ﻿using BikeRental_System3.DTOs.Request;
+using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
@@ -64,6 +65,13 @@ namespace BikeRental_System3.Services
         public async Task<RentalRequest> GetRentalRequest(Guid id)
         {
             var data = await _repository.GetRentalRequest(id);
+            return data;
+        }
+
+
+        public async Task <List<RentalRequest>>  GetRentalRequestbyNic(string nicNumber)
+        {
+            var data = await _repository.GetRentalRequestbyNic(nicNumber);
             return data;
         }
 

@@ -49,6 +49,13 @@ namespace BikeRental_System3.Repository
         //    return request;
         //}
 
+        public async Task<List<RentalRequest>> GetRentalRequestbyNic(string nic)
+        {
+            var data = await _context.RentalRequests.Where(x => x.NicNumber == nic).ToListAsync();
+            return data;
+        }
+
+
         public async Task<RentalRequest> GetRentalRequest(Guid id)
         {
             var request = await _context.RentalRequests

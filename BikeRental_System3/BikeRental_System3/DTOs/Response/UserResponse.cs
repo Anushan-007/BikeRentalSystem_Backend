@@ -16,5 +16,7 @@ namespace BikeRental_System3.DTOs.Response
         public bool? IsBlocked { get; set; } = false;
         public string UserName { get; set; }
         public string? ProfileImage { get; set; }
+        public List<RentalRequestResponse>? RentalRequests { get; set; }
+
     }
 }
