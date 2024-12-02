@@ -15,11 +15,13 @@ namespace BikeRental_System3.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IRentalRequestRepository _rentalRequestRepository;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IRentalRequestRepository rentalRequestRepository)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _rentalRequestRepository = rentalRequestRepository;
         }
 
         public async Task<LoginResponse> UserRegister(UserRequest userRequest)
@@ -142,6 +144,35 @@ namespace BikeRental_System3.Services
             return list;
         }
 
+        //public async Task<UserResponse> GetUserById(string NicNumber)
+        //{
+        //    var data = await _userRepository.GetUserById(NicNumber);
+        //    if (data == null)
+        //    {
+        //        throw new NotFoundException($"User with Nic Number {NicNumber} was not found.");
+        //    }
+
+        //    var res = new UserResponse
+        //    {
+        //        NicNumber = data.NicNumber,
+        //        FirstName = data.FirstName,
+        //        LastName = data.LastName,
+        //        Email = data.Email,
+        //        ContactNo = data.ContactNo,
+        //        Address = data.Address,
+        //        roles = data.roles,
+        //        UserName = data.UserName,
+        //        ProfileImage = data.ProfileImage,
+
+
+
+
+        //    };
+
+
+        //    return res;
+        //}
+
         public async Task<UserResponse> GetUserById(string NicNumber)
         {
             var data = await _userRepository.GetUserById(NicNumber);
@@ -149,6 +180,9 @@ namespace BikeRental_System3.Services
             {
                 throw new NotFoundException($"User with Nic Number {NicNumber} was not found.");
             }
+
+            // Fetch rental requests associated with this user
+            var rentalRequests = await _rentalRequestRepository.GetRentalRequestbyNic(NicNumber);
 
             var res = new UserResponse
             {
@@ -161,9 +195,32 @@ namespace BikeRental_System3.Services
                 roles = data.roles,
                 UserName = data.UserName,
                 ProfileImage = data.ProfileImage,
+
+                // Assign the rental requests to the response object
+                RentalRequests = rentalRequests.Select(x => new RentalRequestResponse
+                {
+                    RentalRequestId = x.Id,
+                    RequestTime = x.RequestTime,
+                    Status = x.Status,
+                    BikeId = x.BikeId,
+                    NicNumber=x.NicNumber,
+
+
+                }).ToList()
             };
+
             return res;
         }
+
+
+        //    RentalRequests = data.RentalRequest?.Select(r => new RentalRequestResponse
+        //            {
+        //                //Id = r.Id,
+        //                RequestTime = r.RequestTime,
+        //                Status = r.Status,
+        //                BikeId = r.BikeId,
+        //                UserAlert = r.UserAlert
+        //}).ToList()
 
 
         public async Task<UserResponse> UpdateUser(String NicNumber, UserRequest userRequest)
