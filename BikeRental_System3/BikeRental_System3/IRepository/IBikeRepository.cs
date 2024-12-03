@@ -1,4 +1,5 @@
 ﻿using BikeRental_System3.DTOs.Request;
+using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.Models;
 
 namespace BikeRental_System3.IRepository
@@ -17,7 +18,7 @@ namespace BikeRental_System3.IRepository
         Task<BikeUnit> GetUnitById(Guid unitId);
         Task<bool> UpadteUnit(BikeUnit bikeUnit);
         Task<bool> UpdateBikeImages(Guid UnitId, List<Image> bikeImages);
-        Task<string> DeleteBike(Bike bike);
+        Task<Message> DeleteBike(Bike bike);
         Task<Bike> UpdateBike(Bike bike);
     }
 }

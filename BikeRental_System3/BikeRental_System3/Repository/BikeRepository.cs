@@ -1,4 +1,5 @@
 ﻿using BikeRental_System3.Data;
+using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.Models;
 using Microsoft.EntityFrameworkCore;
@@ -144,7 +145,7 @@ namespace BikeRental_System3.Repository
             return data.Entity;
         }
 
-        public async Task<string> DeleteBike(Bike bike)
+        public async Task<Message> DeleteBike(Bike bike)
         {
            var data = _context.Bikes.Remove(bike);
             await _context.SaveChangesAsync();
@@ -153,8 +154,12 @@ namespace BikeRental_System3.Repository
                 throw new NotFoundException($"Bike with ID {bike} was not found.");
 
             }
-            
-            return "Successfully Deleted";
+            var message = new Message
+            {
+                text = "Successfully Deleted"
+            };
+
+            return message;
         }
 
         public class NotFoundException : Exception

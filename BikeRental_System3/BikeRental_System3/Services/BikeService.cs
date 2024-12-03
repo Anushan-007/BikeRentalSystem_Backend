@@ -479,7 +479,7 @@ namespace BikeRental_System3.Services
         }
 
 
-        public async Task<string> DeleteBike(Guid Id)
+        public async Task<Message> DeleteBike(Guid Id)
         {
             var get = await _bikeRepository.GetBikeByIdAsync(Id);
             if (get == null)
@@ -488,7 +488,11 @@ namespace BikeRental_System3.Services
             }
 
             var data = await _bikeRepository.DeleteBike(get);
-            return "Successfully Deleted";
+            var message = new Message
+            {
+                text = "Successfully Deleted"
+            };
+            return message;
         }
 
         public class NotFoundException : Exception

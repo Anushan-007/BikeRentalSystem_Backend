@@ -18,7 +18,7 @@ namespace BikeRental_System3.IService
         Task<List<BikeResponse>> AllBikes();
         //Task<bool> UpdateBikeUnit(BikeUnitUpdateDTO bikeUnitUpdateDTO);
         Task<bool> UpdateBikeAndUnitsAndImages(Guid bikeId, BikeUnitUpdateDTO bikeUnitUpdateDTO);
-        Task<string> DeleteBike(Guid Id);
+        Task<Message> DeleteBike(Guid Id);
 
         //Task<string> DeleteBike(Guid Id);
     }
