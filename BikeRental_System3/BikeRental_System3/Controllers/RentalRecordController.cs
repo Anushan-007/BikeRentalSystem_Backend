@@ -2,6 +2,7 @@
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,12 +69,27 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+        //[HttpGet("Get-overdue")]
+        //public async Task<IActionResult> GetOverDueRentals()
+        //{
+        //    try
+        //    {
+        //        var data = await _recordService.GetOverDueRentals();
+        //        return Ok(data);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+
         [HttpGet("Get-overdue")]
-        public async Task<IActionResult> GetOverDueRentals()
+        public async Task<IActionResult> GetOverDueRentalsOfUser(string? nicNo)
         {
             try
             {
-                var data = await _recordService.GetOverDueRentals();
+                var data = await _recordService.GetOverDueRentalsOfUser(nicNo);
                 return Ok(data);
             }
             catch (Exception ex)
@@ -81,7 +97,6 @@ namespace BikeRental_System3.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRentalRecord(Guid id, RentalRecord rentalRecord)

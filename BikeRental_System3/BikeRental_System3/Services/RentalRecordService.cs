@@ -157,21 +157,52 @@ namespace BikeRental_System3.Services
 
 
 
-        public async Task<List<RentalRecord>> GetOverDueRentals()
+        //public async Task<List<RentalRecord>> GetOverDueRentals()
+        //{
+        //    var data = await _rentalRecordRepository.GetIncompleteRentalRecords();
+        //    var overdue = new List<RentalRecord>();
+        //    var now = DateTime.Now;
+        //    foreach (RentalRecord record in data)
+        //    {
+        //        if (now.Subtract((DateTime)record.RentalOut).Hours > 24)
+        //        {
+        //            overdue.Add(record);
+        //        }
+        //    }
+        //    return overdue;
+        //}
+
+
+        public async Task<List<RentalRecord>> GetOverDueRentalsOfUser(string? nicNo)
         {
             var data = await _rentalRecordRepository.GetIncompleteRentalRecords();
             var overdue = new List<RentalRecord>();
             var now = DateTime.Now;
-            foreach (RentalRecord record in data)
+            if (nicNo != null)
             {
-                if (now.Subtract((DateTime)record.RentalOut).Days > 7)
+                foreach (RentalRecord record in data)
                 {
-                    overdue.Add(record);
+                    if (now.Subtract((DateTime)record.RentalOut).Minutes > 1 && record.RentalRequest.NicNumber == nicNo)
+                    {
+                        overdue.Add(record);
+                    }
+
                 }
             }
+            else
+            {
+                foreach (RentalRecord record in data)
+                {
+                    if (now.Subtract((DateTime)record.RentalOut).Minutes > 1)
+                    {
+                        overdue.Add(record);
+                    }
+
+                }
+            }
+
             return overdue;
         }
-
 
         public async Task<RentalRecord> UpdateRentalRecord(Guid id, RentalRecord rentalRecord)
         {

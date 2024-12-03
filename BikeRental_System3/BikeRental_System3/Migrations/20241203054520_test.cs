@@ -19,7 +19,7 @@ namespace BikeRental_System3.Migrations
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RentPerDay = table.Column<int>(type: "int", nullable: false)
+                    RentPerHour = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
