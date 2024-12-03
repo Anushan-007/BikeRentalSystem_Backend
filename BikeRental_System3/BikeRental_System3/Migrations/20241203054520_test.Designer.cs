@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeRental_System3.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241129043418_RentPerDay name change")]
-    partial class RentPerDaynamechange
+    [Migration("20241203054520_test")]
+    partial class test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -257,13 +257,15 @@ namespace BikeRental_System3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BikeRental_System3.Models.User", null)
+                    b.HasOne("BikeRental_System3.Models.User", "User")
                         .WithMany("RentalRecords")
                         .HasForeignKey("UserNicNumber");
 
                     b.Navigation("BikeUnit");
 
                     b.Navigation("RentalRequest");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRequest", b =>

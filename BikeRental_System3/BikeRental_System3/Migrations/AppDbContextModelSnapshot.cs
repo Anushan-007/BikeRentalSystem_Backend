@@ -254,13 +254,15 @@ namespace BikeRental_System3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BikeRental_System3.Models.User", null)
+                    b.HasOne("BikeRental_System3.Models.User", "User")
                         .WithMany("RentalRecords")
                         .HasForeignKey("UserNicNumber");
 
                     b.Navigation("BikeUnit");
 
                     b.Navigation("RentalRequest");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BikeRental_System3.Models.RentalRequest", b =>
