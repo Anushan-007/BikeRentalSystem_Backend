@@ -15,10 +15,12 @@ namespace BikeRental_System3.Services
     {
         private readonly IBikeRepository _bikeRepository;
         private readonly string _imageFolder;
+        //private readonly IBikeUnitRepository _bikeUnitRepository;
 
         public BikeService(IBikeRepository bikeRepository)
         {
             _bikeRepository = bikeRepository;
+            //_bikeUnitRepository = bikeUnitRepository;
             _imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
 
@@ -28,6 +30,7 @@ namespace BikeRental_System3.Services
             {
                 Directory.CreateDirectory(_imageFolder);
             }
+          
         }
 
         public async Task<BikeResponse> AddBike(BikeRequest bikeRequest)
@@ -493,6 +496,34 @@ namespace BikeRental_System3.Services
                 text = "Successfully Deleted"
             };
             return message;
+        }
+
+
+        // Get available BikeUnits filtered by Type
+        public async Task<List<BikeUnitResponse>> GetAvailableBikeUnitsByTypeAsync(string type)
+        {
+            var bikeUnits = await _bikeRepository.GetAvailableBikeUnitsByTypeAsync(type);
+
+            return bikeUnits.Select(bu => new BikeUnitResponse
+            {
+                UnitId = bu.UnitId,
+                BikeId = bu.BikeId,
+                RegistrationNumber = bu.RegistrationNumber,
+                Year = bu.Year,
+                Availability = bu.Availability,
+                Images = bu.Images.Select(img => new ImageResponse
+                {
+                    Id = img.Id,
+                    ImagePath = img.ImagePath
+                }).ToList()
+            }).ToList();
+        }
+
+
+        // Get all distinct bike types
+        public async Task<List<string>> GetAllBikeTypesAsync()
+        {
+            return await _bikeRepository.GetAllBikeTypesAsync();
         }
 
         public class NotFoundException : Exception
