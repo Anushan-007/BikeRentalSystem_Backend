@@ -162,6 +162,25 @@ namespace BikeRental_System3.Repository
             return message;
         }
 
+        // Filter available BikeUnits (Availability == true) by Bike Type
+        public async Task<List<BikeUnit>> GetAvailableBikeUnitsByTypeAsync(string type)
+        {
+            return await _context.BikeUnits
+                .Where(bu => bu.Availability == true && bu.Bike.Type.Contains(type)) // Filter by Availability and Bike Type
+                .Include(bu => bu.Bike)  // Include Bike to access Type
+                .Include(bu => bu.Images) // Include related Images for each BikeUnit
+                .ToListAsync();
+        }
+
+        // Get distinct bike types from the Bike table
+        public async Task<List<string>> GetAllBikeTypesAsync()
+        {
+            return await _context.Bikes
+                .Select(b => b.Type)  // Select only the Type field
+                .Distinct()            // Get distinct types
+                .ToListAsync();       // Execute query asynchronously
+        }
+
         public class NotFoundException : Exception
         {
             public NotFoundException(string message) : base(message) { }

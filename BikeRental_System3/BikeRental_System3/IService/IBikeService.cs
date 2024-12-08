@@ -21,5 +21,7 @@ namespace BikeRental_System3.IService
         Task<Message> DeleteBike(Guid Id);
 
         //Task<string> DeleteBike(Guid Id);
+        Task<List<BikeUnitResponse>> GetAvailableBikeUnitsByTypeAsync(string type);
+        Task<List<string>> GetAllBikeTypesAsync();
     }
 }

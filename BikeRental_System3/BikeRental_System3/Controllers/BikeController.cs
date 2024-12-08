@@ -172,5 +172,21 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+        // Endpoint to get available BikeUnits filtered by Bike Type
+        [HttpGet("available-by-type")]
+        public async Task<IActionResult> GetAvailableBikeUnitsByType([FromQuery] string type)
+        {
+            var bikeUnitResponses = await _bikeService.GetAvailableBikeUnitsByTypeAsync(type);
+            return Ok(bikeUnitResponses);
+        }
+
+        // Endpoint to get all distinct bike types
+        [HttpGet("types")]
+        public async Task<IActionResult> GetAllBikeTypes()
+        {
+            var bikeTypes = await _bikeService.GetAllBikeTypesAsync();
+            return Ok(bikeTypes);
+        }
+
     }
 }
