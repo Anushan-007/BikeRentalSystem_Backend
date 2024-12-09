@@ -188,5 +188,12 @@ namespace BikeRental_System3.Controllers
             return Ok(bikeTypes);
         }
 
+        [HttpGet("totalBikes")]
+        public async Task<IActionResult> TotalBikesCount()
+        {
+            var data = await _bikeService.TotalBikesCount();
+            return Ok(data);
+        }
+
     }
 }

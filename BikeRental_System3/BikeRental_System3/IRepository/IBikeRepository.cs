@@ -22,6 +22,7 @@ namespace BikeRental_System3.IRepository
         Task<Bike> UpdateBike(Bike bike);
         Task<List<BikeUnit>> GetAvailableBikeUnitsByTypeAsync(string type);
         Task<List<string>> GetAllBikeTypesAsync();
+        Task<int> TotalBikesCount();
 
 
     }

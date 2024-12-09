@@ -181,6 +181,12 @@ namespace BikeRental_System3.Repository
                 .ToListAsync();       // Execute query asynchronously
         }
 
+        public async Task<int> TotalBikesCount()
+        {
+            var data = await _context.Bikes.CountAsync();
+            return data;
+        }
+
         public class NotFoundException : Exception
         {
             public NotFoundException(string message) : base(message) { }
