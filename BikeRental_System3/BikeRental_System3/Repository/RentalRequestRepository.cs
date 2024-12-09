@@ -96,6 +96,13 @@ namespace BikeRental_System3.Repository
             return "Successfully Deleted...";
         }
 
+        public async Task<int> GetPendingRentalRequestsCountAsync()
+        {
+            return await _context.RentalRequests
+                .Where(r => r.Status == Status.Pending)
+                .CountAsync();
+        }
+
     }
    
 }

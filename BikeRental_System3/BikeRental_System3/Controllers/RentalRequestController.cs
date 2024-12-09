@@ -90,5 +90,12 @@ namespace BikeRental_System3.Controllers
             return NoContent();
         }
 
+        [HttpGet("pending-count")]
+        public async Task<ActionResult<int>> GetPendingRentalRequestsCount()
+        {
+            var count = await _rentalRequestService.GetPendingRentalRequestsCountAsync();
+            return Ok(count);
+        }
+
     }
 }

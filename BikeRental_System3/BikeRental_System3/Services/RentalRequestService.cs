@@ -112,5 +112,9 @@ namespace BikeRental_System3.Services
             return data;
         }
 
+        public async Task<int> GetPendingRentalRequestsCountAsync()
+        {
+            return await _repository.GetPendingRentalRequestsCountAsync();
+        }
     }
 }
