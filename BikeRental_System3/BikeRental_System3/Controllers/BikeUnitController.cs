@@ -1,4 +1,5 @@
 ﻿using BikeRental_System3.IService;
+using BikeRental_System3.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,6 +56,21 @@ namespace BikeRental_System3.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("totalBikes")]
+        public async Task<IActionResult> TotalBikesCount()
+        {
+            var data = await _bikeUnitService.TotalBikesCount();
+            return Ok(data);
+        }
+
+
+        [HttpGet("available/count")]
+        public async Task<IActionResult> GetAvailableBikeUnitsCount()
+        {
+            var count = await _bikeUnitService.GetAvailableBikeUnitsCountAsync();
+            return Ok(count);
         }
 
     }

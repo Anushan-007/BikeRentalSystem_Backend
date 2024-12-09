@@ -91,6 +91,20 @@ namespace BikeRental_System3.Repository
         }
 
 
+
+        public async Task<int> TotalBikesCount()
+        {
+            var data = await _context.BikeUnits.CountAsync();
+            return data;
+        }
+
+        public async Task<int> GetAvailableBikeUnitsCountAsync()
+        {
+            return await _context.BikeUnits
+                .Where(b => b.Availability)  // Filtering only available and not deleted bike units
+                .CountAsync();
+        }
+
         public class NotFoundException : Exception
         {
             public NotFoundException(string message) : base(message) { }
