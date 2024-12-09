@@ -9,5 +9,7 @@ namespace BikeRental_System3.IService
         Task<BikeUnit> GetInventoryUnit(string registrationNumber);
         Task<List<BikeUnitResponse>> GetAvailablityUnits(bool? availability);
         Task<Message> DeleteBikeUnit(string registrationNumber);
+        Task<int> TotalBikesCount();
+        Task<int> GetAvailableBikeUnitsCountAsync();
     }
 }
