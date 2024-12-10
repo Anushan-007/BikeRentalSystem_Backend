@@ -4,6 +4,7 @@ using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental_System3.Services
 {
@@ -246,6 +247,25 @@ namespace BikeRental_System3.Services
             }
 
         }
+
+        public async Task<List<RentalRecordResponse>> GetRentalRecordByReqId(Guid ReqId)
+        {
+            var data = await _rentalRecordRepository.GetRentalRecordByReqId(ReqId);
+
+            // Map the RentalRecord entities to RentalRecordResponse
+            var rentalRecordResponses = data.Select(r => new RentalRecordResponse
+            {
+                RecordId = r.Id, // Assuming the property name is 'Id'
+                RentalOut = r.RentalOut,
+                RentalReturn = r.RentalReturn,
+                Payment = r.Payment,
+                RentalRequestId = r.RentalRequestId,
+                RegistrationNumber = r.RegistrationNumber
+            }).ToList();
+
+            return rentalRecordResponses;
+        }
+
 
 
     }
