@@ -29,7 +29,7 @@ namespace BikeRental_System3.Repository
 
         public async Task<RentalRecord> GetRentalRecord(Guid id)
         {
-            var request = await _context.RentalRecords.FirstOrDefaultAsync(x => x.Id == id);
+            var request = await _context.RentalRecords.Include(r => r.RentalRequest).ThenInclude(r => r.User).FirstOrDefaultAsync(x => x.Id == id);
             if (request == null)
             {
                 throw new Exception();
