@@ -14,7 +14,7 @@ namespace BikeRental_System3.IService
         Task<RentalRecord> CompleteRentalRecord(Guid id, RentalRecordUpdateRequest rentalRecPutRequest);
         //Task<List<RentalRecord>> GetOverDueRentals();
         Task<List<RentalRecord>> GetOverDueRentalsOfUser(string? nicNo);
-        Task<List<RentalRecordResponse>> GetRentalRecordByReqId(Guid ReqId);
+       // Task<List<RentalRecordResponse>> GetRentalRecordByReqId(Guid ReqId);
 
     }
 }

@@ -248,23 +248,23 @@ namespace BikeRental_System3.Services
 
         }
 
-        public async Task<List<RentalRecordResponse>> GetRentalRecordByReqId(Guid ReqId)
-        {
-            var data = await _rentalRecordRepository.GetRentalRecordByReqId(ReqId);
+        //public async Task<List<RentalRecordResponse>> GetRentalRecordByReqId(Guid ReqId)
+        //{
+        //    var data = await _rentalRecordRepository.GetRentalRecordByReqId(ReqId);
 
-            // Map the RentalRecord entities to RentalRecordResponse
-            var rentalRecordResponses = data.Select(r => new RentalRecordResponse
-            {
-                RecordId = r.Id, // Assuming the property name is 'Id'
-                RentalOut = r.RentalOut,
-                RentalReturn = r.RentalReturn,
-                Payment = r.Payment,
-                RentalRequestId = r.RentalRequestId,
-                RegistrationNumber = r.RegistrationNumber
-            }).ToList();
+        //    // Map the RentalRecord entities to RentalRecordResponse
+        //    var rentalRecordResponses = data.Select(r => new RentalRecordResponse
+        //    {
+        //        RecordId = r.Id, // Assuming the property name is 'Id'
+        //        RentalOut = r.RentalOut,
+        //        RentalReturn = r.RentalReturn,
+        //        Payment = r.Payment,
+        //        RentalRequestId = r.RentalRequestId,
+        //        RegistrationNumber = r.RegistrationNumber
+        //    }).ToList();
 
-            return rentalRecordResponses;
-        }
+        //    return rentalRecordResponses;
+        //}
 
 
 

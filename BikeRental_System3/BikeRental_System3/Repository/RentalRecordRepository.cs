@@ -56,10 +56,10 @@ namespace BikeRental_System3.Repository
             return data.Entity;
         }
 
-        public async Task<List<RentalRecord>> GetRentalRecordByReqId(Guid ReqId)
+        public async Task<RentalRecord> GetRentalRecordByReqId(Guid ReqId)
         {
             
-            var data = await _context.RentalRecords.Where(r => r.RentalRequestId == ReqId).ToListAsync(); 
+            var data = await _context.RentalRecords.Where(r => r.RentalRequestId == ReqId).SingleOrDefaultAsync(); 
             return data; 
         }
 
