@@ -81,10 +81,11 @@ namespace BikeRental_System3.Data
         public DbSet<Bike> Bikes { get; set; }
         public DbSet<BikeUnit>BikeUnits { get; set; }
         public DbSet<Image> Images { get; set; }
-        //public DbSet<Inventory> Inventories { get; set; }
         public DbSet<RentalRecord> RentalRecords { get; set; }
         public DbSet<RentalRequest> RentalRequests { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<EmailTemplate> EmailTemplates { get; set; }
+
 
     }
 }

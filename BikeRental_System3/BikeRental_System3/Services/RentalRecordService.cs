@@ -1,5 +1,6 @@
 ﻿using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.DTOs.Response;
+using BikeRental_System3.Enus;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
@@ -13,13 +14,15 @@ namespace BikeRental_System3.Services
         private readonly IRentalRecordRepository _rentalRecordRepository;
         private readonly IRentalRequestRepository _rentalRequestRepository;
         private readonly IBikeUnitRepository _bikeUnitRepository;
-
-        public RentalRecordService(IRentalRecordRepository rentalRecordRepository, IRentalRequestRepository rentalRequestRepository, IBikeUnitRepository bikeUnitRepository)
+        private readonly sendmailService _sendmailService;
+        private readonly IUserService _userService;
+        public RentalRecordService(IRentalRecordRepository rentalRecordRepository, IRentalRequestRepository rentalRequestRepository, IBikeUnitRepository bikeUnitRepository, sendmailService sendmailService, IUserService userService)
         {
             _rentalRecordRepository = rentalRecordRepository;
             _rentalRequestRepository = rentalRequestRepository;
             _bikeUnitRepository = bikeUnitRepository;
-
+            _sendmailService = sendmailService; 
+            _userService = userService;
 
         }
 
@@ -239,6 +242,14 @@ namespace BikeRental_System3.Services
                 await _bikeUnitRepository.PutInventoryUnit(getUnit);
 
                 var data = await _rentalRecordRepository.UpdateRentalRecord(getRecord);
+                var user = await _userService.GetUserById(getRecord.RentalRequest.NicNumber);
+                var req = new SendMailRequest();
+                req.RentalRecord = getRecord;
+                req.RentalRequest = getRecord.RentalRequest;
+                req.EmailType = EmailTypes.PaymentNotification;
+                req.Email = user.Email;
+                req.Name = "payment";
+                var result = await _sendmailService.Sendmail(req);
                 return data;
             }
             else
