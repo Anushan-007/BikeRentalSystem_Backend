@@ -10,5 +10,6 @@ namespace BikeRental_System3.IRepository
         Task<List<RentalRecord>> GetIncompleteRentalRecords();
         Task<RentalRecord> GetRentalRecord(Guid id);
         Task<RentalRecord> UpdateRentalRecord(RentalRecord RentalRecord);
+        Task<List<RentalRecord>> GetRentalRecordByReqId(Guid ReqId);
     }
 }

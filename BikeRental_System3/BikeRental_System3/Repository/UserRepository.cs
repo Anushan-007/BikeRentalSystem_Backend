@@ -40,7 +40,7 @@ namespace BikeRental_System3.Repository
 
         public async Task<User> GetUserById(string NicNumber)
         {
-            var data = await _context.Users.Include(u => u.RentalRequest).FirstOrDefaultAsync(b => b.NicNumber == NicNumber);
+            var data = await _context.Users.Include(u => u.RentalRequest).ThenInclude(u => u.RentalRecord).FirstOrDefaultAsync(b => b.NicNumber == NicNumber);
             if (data == null)
             {
                 throw new NotFoundException($"User with NIC number {NicNumber} was not found.");

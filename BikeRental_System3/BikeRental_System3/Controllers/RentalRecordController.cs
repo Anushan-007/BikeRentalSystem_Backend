@@ -1,4 +1,5 @@
 ﻿using BikeRental_System3.DTOs.Request;
+using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Services;
@@ -119,6 +120,24 @@ namespace BikeRental_System3.Controllers
         {
             var data = await _recordService.CompleteRentalRecord(id, rentalRecPutRequest);
             return Ok(data);
+        }
+
+
+
+        [HttpGet("GetByRentalRequestId/{reqId}")]
+        public async Task<ActionResult<List<RentalRecordResponse>>> GetRentalRecordByReqId(Guid reqId)
+        {
+            // Call the service to get rental records by the RentalRequestId
+            var rentalRecords = await _recordService.GetRentalRecordByReqId(reqId);
+
+            // If no records are found, return a NotFound response
+            if (rentalRecords == null || rentalRecords.Count == 0)
+            {
+                return NotFound("No rental records found for this request ID.");
+            }
+
+            // Return the mapped response
+            return Ok(rentalRecords);
         }
 
     }
