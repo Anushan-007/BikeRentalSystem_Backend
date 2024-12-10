@@ -124,21 +124,21 @@ namespace BikeRental_System3.Controllers
 
 
 
-        [HttpGet("GetByRentalRequestId/{reqId}")]
-        public async Task<ActionResult<List<RentalRecordResponse>>> GetRentalRecordByReqId(Guid reqId)
-        {
-            // Call the service to get rental records by the RentalRequestId
-            var rentalRecords = await _recordService.GetRentalRecordByReqId(reqId);
+        //[HttpGet("GetByRentalRequestId/{reqId}")]
+        //public async Task<ActionResult<List<RentalRecordResponse>>> GetRentalRecordByReqId(Guid reqId)
+        //{
+        //    // Call the service to get rental records by the RentalRequestId
+        //    var rentalRecords = await _recordService.GetRentalRecordByReqId(reqId);
 
-            // If no records are found, return a NotFound response
-            if (rentalRecords == null || rentalRecords.Count == 0)
-            {
-                return NotFound("No rental records found for this request ID.");
-            }
+        //    // If no records are found, return a NotFound response
+        //    if (rentalRecords == null || rentalRecords.Count == 0)
+        //    {
+        //        return NotFound("No rental records found for this request ID.");
+        //    }
 
-            // Return the mapped response
-            return Ok(rentalRecords);
-        }
+        //    // Return the mapped response
+        //    return Ok(rentalRecords);
+        //}
 
     }
 }

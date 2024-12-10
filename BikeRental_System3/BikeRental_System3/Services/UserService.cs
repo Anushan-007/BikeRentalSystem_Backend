@@ -4,6 +4,7 @@ using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,12 +17,14 @@ namespace BikeRental_System3.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IRentalRequestRepository _rentalRequestRepository;
+        private readonly IRentalRecordRepository _rentalRecordRepository;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IRentalRequestRepository rentalRequestRepository)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IRentalRequestRepository rentalRequestRepository, IRentalRecordRepository rentalRecordRepository)
         {
             _userRepository = userRepository;
             _configuration = configuration;
             _rentalRequestRepository = rentalRequestRepository;
+            _rentalRecordRepository = rentalRecordRepository;
         }
 
         public async Task<LoginResponse> UserRegister(UserRequest userRequest)
@@ -184,6 +187,7 @@ namespace BikeRental_System3.Services
             // Fetch rental requests associated with this user
             var rentalRequests = await _rentalRequestRepository.GetRentalRequestbyNic(NicNumber);
 
+
             var res = new UserResponse
             {
                 NicNumber = data.NicNumber,
@@ -203,14 +207,76 @@ namespace BikeRental_System3.Services
                     RequestTime = x.RequestTime,
                     Status = x.Status,
                     BikeId = x.BikeId,
-                    NicNumber=x.NicNumber,
-
-
+                    NicNumber = x.NicNumber,
                 }).ToList()
-            };
 
+            };
+            var responseList = new List<RentalRecordResponse>();    
+            foreach (var item in res.RentalRequests.Where(r=> r.Status == Status.OnRent))
+            {
+                var response = new RentalRecordResponse();
+                var getRecord = await _rentalRecordRepository.GetRentalRecordByReqId(item.RentalRequestId);
+                response.RecordId = getRecord.Id;
+                response.RentalRequestId = getRecord.RentalRequestId;
+                response.RentalReturn = getRecord.RentalReturn;
+                response.RentalOut = getRecord.RentalOut;
+                response.Payment = getRecord.Payment;
+                response.RentalReturn = getRecord.RentalReturn;
+                responseList.Add(response);
+            }
+            res.RentalRecords = responseList;
             return res;
         }
+
+        //public async Task<UserResponse> GetUserById(string NicNumber)
+        //{
+        //    // Fetch user data by NicNumber
+        //    var data = await _userRepository.GetUserById(NicNumber);
+        //    if (data == null)
+        //    {
+        //        throw new NotFoundException($"User with Nic Number {NicNumber} was not found.");
+        //    }
+
+        //    // Fetch rental requests associated with the user
+        //    var rentalRequests = await _rentalRequestRepository.GetRentalRequestbyNic(NicNumber);
+
+        //    // Create a response object to map the user details
+        //    var res = new UserResponse
+        //    {
+        //        NicNumber = data.NicNumber,
+        //        FirstName = data.FirstName,
+        //        LastName = data.LastName,
+        //        Email = data.Email,
+        //        ContactNo = data.ContactNo,
+        //        Address = data.Address,
+        //        roles = data.roles,
+        //        UserName = data.UserName,
+        //        ProfileImage = data.ProfileImage,
+
+        //        // Use Task.WhenAll to fetch all rental records asynchronously
+        //        RentalRequests = await Task.WhenAll(rentalRequests.Select(async x =>
+        //        {
+        //            // Get rental records asynchronously for each rental request
+        //            var rentalRecords = await _rentalRecordRepository.GetRentalRecordByReqId(x.Id);
+
+        //            return new RentalRequestResponse
+        //            {
+        //                RentalRequestId = x.Id,
+        //                RequestTime = x.RequestTime,
+        //                Status = x.Status,
+        //                BikeId = x.BikeId,
+        //                NicNumber = x.NicNumber,
+
+
+        //                RentalRecords = rentalRecords
+        //            };
+        //        }))
+        //    };
+
+        //    return res;
+        //}
+
+
 
 
         //    RentalRequests = data.RentalRequest?.Select(r => new RentalRequestResponse

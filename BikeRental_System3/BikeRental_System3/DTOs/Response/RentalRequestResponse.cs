@@ -10,5 +10,6 @@ namespace BikeRental_System3.DTOs.Response
         public Guid BikeId { get; set; }
         public bool? UserAlert { get; set; }
         public string NicNumber { get; set; }
+        public List<RentalRecordResponse> RentalRecords { get; set; }
     }
 }
