@@ -31,7 +31,7 @@ namespace BikeRental_System3.Repository
         }
 
 
-
+      
         public async Task<List<User>> GetAllUsers()
         {
             var data = await _context.Users.ToListAsync();
@@ -75,7 +75,25 @@ namespace BikeRental_System3.Repository
             return "Successfully Deleted";
         }
 
+        // Method to update the IsBlocked field
+        //public async Task UpdateUserBlockStatus(string nicNumber, bool isBlocked)
+        //{
+        //    var user = await GetUserById(nicNumber);
 
+        //    // Update the IsBlocked status
+        //    user.IsBlocked = isBlocked = true;
+
+        //    // Save the changes to the database
+        //    _context.Users.Update(user);
+        //    await _context.SaveChangesAsync();
+        //}
+
+        public async Task<bool> BlockUser(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         public class NotFoundException : Exception
         {

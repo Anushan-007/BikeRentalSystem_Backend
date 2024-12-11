@@ -114,6 +114,19 @@ namespace BikeRental_System3.Controllers
             }
         }
 
+        [HttpPut("blockUser")]
+        public async Task<IActionResult> BlockUser(string NicNumber)
+        {
+            try
+            {
+                var data = await _userService.BlockUser(NicNumber);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

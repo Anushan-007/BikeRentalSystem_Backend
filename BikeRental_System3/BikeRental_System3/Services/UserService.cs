@@ -85,7 +85,12 @@ namespace BikeRental_System3.Services
             {
                 throw new Exception("Invalid password");
             }
+            if (user.IsBlocked == true) {
+                throw new Exception("Blocked User");
+            }
+           
 
+            
             // Create and return JWT token
             var token = CreateToken(user);
 
@@ -143,6 +148,7 @@ namespace BikeRental_System3.Services
                 roles=x.roles,
                 UserName=x.UserName,
                 ProfileImage=x.ProfileImage,
+                IsBlocked=x.IsBlocked,
             }).ToList();
             return list;
         }
@@ -198,7 +204,8 @@ namespace BikeRental_System3.Services
                 Address = data.Address,
                 roles = data.roles,
                 UserName = data.UserName,
-                ProfileImage = data.ProfileImage,
+                IsBlocked = data.IsBlocked,
+                ProfileImage = data.ProfileImage,   
 
                 // Assign the rental requests to the response object
                 RentalRequests = rentalRequests.Select(x => new RentalRequestResponse
@@ -335,6 +342,34 @@ namespace BikeRental_System3.Services
             return "Successfully Deleted";
         }
 
+
+        public async Task<bool> BlockUser(string NicNumber)
+        {
+            var get = await _userRepository.GetUserById(NicNumber);
+            if (get == null)
+            {
+                throw new NotFoundException($"User with NIC Number {NicNumber} was not found.");
+            }
+
+            if (get.IsBlocked == true)
+            {
+                get.IsBlocked = false;
+                var data = await _userRepository.BlockUser(get);
+                return false;
+            }
+            else if (get.IsBlocked == false)
+            {
+                get.IsBlocked = true;
+                var data = await _userRepository.BlockUser(get);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+              
+
+        }
 
 
         public class NotFoundException : Exception

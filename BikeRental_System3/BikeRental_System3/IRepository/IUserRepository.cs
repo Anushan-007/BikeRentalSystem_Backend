@@ -12,5 +12,6 @@ namespace BikeRental_System3.IRepository
         Task<User> GetUserById(string NicNumber);
         Task<User> UpdateUser(User user);
         Task<string> DeleteUser(User user);
+        Task<bool> BlockUser(User user);
     }
 }

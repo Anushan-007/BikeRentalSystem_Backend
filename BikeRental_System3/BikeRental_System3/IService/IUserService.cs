@@ -13,5 +13,6 @@ namespace BikeRental_System3.IService
         Task<UserResponse> GetUserById(string NicNumber);
         Task<UserResponse> UpdateUser(String NicNumber, UserRequest userRequest);
         Task<string> DeleteUser(string NicNumber);
+        Task<bool> BlockUser(string NicNumber);
     }
 }
