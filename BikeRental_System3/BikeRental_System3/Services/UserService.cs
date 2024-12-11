@@ -47,8 +47,8 @@ namespace BikeRental_System3.Services
 
             if (userRequest.roles == Roles.Admin)
             {
-                users.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin");
-                users.UserName = "admin";
+                users.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin3");
+                users.UserName = "Admin3";
             }
 
             var data = await _userRepository.UserRegister(users);

@@ -187,6 +187,7 @@ namespace BikeRental_System3.Repository
             return data;
         }
 
+
         public class NotFoundException : Exception
         {
             public NotFoundException(string message) : base(message) { }

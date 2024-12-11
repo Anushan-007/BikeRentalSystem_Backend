@@ -116,5 +116,21 @@ namespace BikeRental_System3.Services
         {
             return await _repository.GetPendingRentalRequestsCountAsync();
         }
+
+        // Method to get the most popular NIC number
+        public async Task<string> GetMostPopularNicAsync()
+        {
+            return await _repository.GetMostPopularNicAsync();
+        }
+
+        public async Task<int> GetAcceptedRequestCountAsync()
+        {
+            return await _repository.GetAcceptedRequestCountAsync();
+        }
+
+        public async Task<int> GetDeclinedRequestCountAsync()
+        {
+            return await _repository.GetDeclinedRequestCountAsync();
+        }
     }
 }

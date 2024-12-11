@@ -140,5 +140,19 @@ namespace BikeRental_System3.Controllers
         //    return Ok(rentalRecords);
         //}
 
+        [HttpGet("total-payment")]
+        public async Task<IActionResult> GetTotalPayment()
+        {
+            try
+            {
+                var totalPayment = await _recordService.GetTotalPaymentAsync();
+                return Ok(totalPayment);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -11,5 +11,6 @@ namespace BikeRental_System3.IRepository
         Task<RentalRecord> GetRentalRecord(Guid id);
         Task<RentalRecord> UpdateRentalRecord(RentalRecord RentalRecord);
         Task<RentalRecord> GetRentalRecordByReqId(Guid ReqId);
+        Task<decimal> GetTotalPaymentAsync();
     }
 }

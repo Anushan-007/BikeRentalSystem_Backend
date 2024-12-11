@@ -278,6 +278,11 @@ namespace BikeRental_System3.Services
         //}
 
 
+        public async Task<decimal> GetTotalPaymentAsync()
+        {
+            return await _rentalRecordRepository.GetTotalPaymentAsync();
+        }
+
 
     }
 }

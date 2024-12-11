@@ -97,5 +97,33 @@ namespace BikeRental_System3.Controllers
             return Ok(count);
         }
 
+        [HttpGet("most-popular-nic")]
+        public async Task<ActionResult<string>> GetMostPopularNic()
+        {
+            var mostPopularNic = await _rentalRequestService.GetMostPopularNicAsync();
+
+            if (string.IsNullOrEmpty(mostPopularNic))
+            {
+                return NotFound("No NIC number found.");
+            }
+
+            return Ok(mostPopularNic); // Return the most popular NIC number as a string
+        }
+
+        // GET api/rentalrequest/acceptedcount
+        [HttpGet("acceptedcount")]
+        public async Task<ActionResult<int>> GetAcceptedRequestCount()
+        {
+            var count = await _rentalRequestService.GetAcceptedRequestCountAsync();
+            return Ok(count); // Returns the count of accepted rental requests
+        }
+
+        [HttpGet("declinedcount")]
+        public async Task<ActionResult<int>> GetDeclinedRequestCountAsync()
+        {
+            var count = await _rentalRequestService.GetDeclinedRequestCountAsync();
+            return Ok(count); // Returns the count of accepted rental requests
+        }
+
     }
 }

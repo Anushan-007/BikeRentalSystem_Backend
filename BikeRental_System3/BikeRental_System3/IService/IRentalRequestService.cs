@@ -14,6 +14,10 @@ namespace BikeRental_System3.IService
         Task<RentalRequest> DeclineRentalRequest(Guid Id);
         Task<string> DeleteRentalRequest(Guid id);
         Task<int> GetPendingRentalRequestsCountAsync();
+        Task<string> GetMostPopularNicAsync();
+        Task<int> GetAcceptedRequestCountAsync();
+        Task<int> GetDeclinedRequestCountAsync();
+
 
 
     }

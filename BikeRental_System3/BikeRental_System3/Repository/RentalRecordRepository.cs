@@ -64,5 +64,15 @@ namespace BikeRental_System3.Repository
         }
 
 
+        public async Task<decimal> GetTotalPaymentAsync()
+        {
+            // Sum up all the payments from RentalRecord
+            var totalPayment = await _context.RentalRecords
+                .Where(r => r.Payment.HasValue)  // Only sum records with a non-null payment
+                .SumAsync(r => r.Payment.Value); // Sum up the payment values
+
+            return totalPayment;
+        }
+
     }
 }

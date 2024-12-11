@@ -103,6 +103,32 @@ namespace BikeRental_System3.Repository
                 .CountAsync();
         }
 
+        // Method to fetch the most popular NIC number (most frequent one)
+        public async Task<string> GetMostPopularNicAsync()
+        {
+            var mostPopularNic = await _context.RentalRequests
+                .GroupBy(r => r.NicNumber) // Group by NIC number
+                .OrderByDescending(g => g.Count()) // Order by frequency count
+                .Select(g => new { NicNumber = g.Key, Count = g.Count() }) // Select NIC and its count
+                .FirstOrDefaultAsync(); // Get the first (most frequent NIC)
+
+            return mostPopularNic?.NicNumber; // Return the NIC number
+        }
+
+        public async Task<int> GetAcceptedRequestCountAsync()
+        {
+            return await _context.RentalRequests
+                                 .Where(r => r.Status == Status.Accepted)
+                                 .CountAsync();
+        }
+
+        public async Task<int> GetDeclinedRequestCountAsync()
+        {
+            return await _context.RentalRequests
+                                 .Where(r => r.Status == Status.Declined)
+                                 .CountAsync();
+        }
+
     }
    
 }
