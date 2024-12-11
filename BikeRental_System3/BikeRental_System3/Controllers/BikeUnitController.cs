@@ -73,5 +73,12 @@ namespace BikeRental_System3.Controllers
             return Ok(count);
         }
 
+        [HttpGet("count-unavailable")]
+        public async Task<IActionResult> GetUnavailableBikeUnitsCount()
+        {
+            var count = await _bikeUnitService.GetUnavailableBikeUnitsCountAsync();
+            return Ok(count);
+        }
+
     }
 }

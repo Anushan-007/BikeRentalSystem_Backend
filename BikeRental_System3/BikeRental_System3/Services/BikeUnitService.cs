@@ -91,6 +91,11 @@ namespace BikeRental_System3.Services
             return await _repository.GetAvailableBikeUnitsCountAsync();
         }
 
+        public async Task<int> GetUnavailableBikeUnitsCountAsync()
+        {
+            return await _repository.GetUnavailableBikeUnitsCountAsync();
+        }
+
         public class NotFoundException : Exception
         {
             public NotFoundException(string message) : base(message) { }

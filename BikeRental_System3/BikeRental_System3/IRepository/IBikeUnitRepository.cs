@@ -13,5 +13,6 @@ namespace BikeRental_System3.IRepository
         Task<Message> DeleteBikeUnit(BikeUnit bikeUnits);
         Task<int> TotalBikesCount();
         Task<int> GetAvailableBikeUnitsCountAsync();
+        Task<int> GetUnavailableBikeUnitsCountAsync();
         }
 }

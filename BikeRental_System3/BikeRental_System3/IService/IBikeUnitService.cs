@@ -11,5 +11,6 @@ namespace BikeRental_System3.IService
         Task<Message> DeleteBikeUnit(string registrationNumber);
         Task<int> TotalBikesCount();
         Task<int> GetAvailableBikeUnitsCountAsync();
+        Task<int> GetUnavailableBikeUnitsCountAsync();
     }
 }

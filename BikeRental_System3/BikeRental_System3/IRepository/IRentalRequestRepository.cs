@@ -12,5 +12,8 @@ namespace BikeRental_System3.IRepository
         Task<RentalRequest> UpdateRentalRequest(RentalRequest rentalRequest);
         Task<string> DeleteRentalRequest(Guid id);
         Task<int> GetPendingRentalRequestsCountAsync();
+         Task<string> GetMostPopularNicAsync();
+        Task<int> GetAcceptedRequestCountAsync();
+        Task<int> GetDeclinedRequestCountAsync();
     }
 }
