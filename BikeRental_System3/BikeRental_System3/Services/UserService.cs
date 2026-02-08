@@ -45,10 +45,17 @@ namespace BikeRental_System3.Services
                 IsBlocked = false,
             };
 
+            // For admin users, ensure strong default credentials are set only if not provided
             if (userRequest.roles == Roles.Admin)
             {
-                users.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin3");
-                users.UserName = "Admin3";
+                if (string.IsNullOrEmpty(userRequest.Password))
+                {
+                    users.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+                }
+                if (string.IsNullOrEmpty(userRequest.UserName))
+                {
+                    users.UserName = $"Admin_{DateTime.Now:yyyyMMddHHmmss}";
+                }
             }
 
             var data = await _userRepository.UserRegister(users);
@@ -68,7 +75,7 @@ namespace BikeRental_System3.Services
             var token = CreateToken(data);
             return token;
         }
-       
+
 
         public async Task<LoginResponse> UserLogin(LoginRequest loginRequest)
         {
@@ -85,12 +92,13 @@ namespace BikeRental_System3.Services
             {
                 throw new Exception("Invalid password");
             }
-            if (user.IsBlocked == true) {
+            if (user.IsBlocked == true)
+            {
                 throw new Exception("Blocked User");
             }
-           
 
-            
+
+
             // Create and return JWT token
             var token = CreateToken(user);
 
@@ -139,16 +147,16 @@ namespace BikeRental_System3.Services
             var data = await _userRepository.GetAllUsers();
             var list = data.Select(x => new UserResponse
             {
-                NicNumber=x.NicNumber,
-                FirstName=x.FirstName,
-                LastName=x.LastName,
-                Email=x.Email,
-                ContactNo=x.ContactNo,
-                Address=x.Address,
-                roles=x.roles,
-                UserName=x.UserName,
-                ProfileImage=x.ProfileImage,
-                IsBlocked=x.IsBlocked,
+                NicNumber = x.NicNumber,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email,
+                ContactNo = x.ContactNo,
+                Address = x.Address,
+                roles = x.roles,
+                UserName = x.UserName,
+                ProfileImage = x.ProfileImage,
+                IsBlocked = x.IsBlocked,
             }).ToList();
             return list;
         }
@@ -205,7 +213,7 @@ namespace BikeRental_System3.Services
                 roles = data.roles,
                 UserName = data.UserName,
                 IsBlocked = data.IsBlocked,
-                ProfileImage = data.ProfileImage,   
+                ProfileImage = data.ProfileImage,
 
                 // Assign the rental requests to the response object
                 RentalRequests = rentalRequests.Select(x => new RentalRequestResponse
@@ -218,8 +226,8 @@ namespace BikeRental_System3.Services
                 }).ToList()
 
             };
-            var responseList = new List<RentalRecordResponse>();    
-            foreach (var item in res.RentalRequests.Where(r=> r.Status == Status.OnRent))
+            var responseList = new List<RentalRecordResponse>();
+            foreach (var item in res.RentalRequests.Where(r => r.Status == Status.OnRent))
             {
                 var response = new RentalRecordResponse();
                 var getRecord = await _rentalRecordRepository.GetRentalRecordByReqId(item.RentalRequestId);
@@ -304,9 +312,9 @@ namespace BikeRental_System3.Services
             get.Email = userRequest.Email;
             get.ContactNo = userRequest.ContactNo;
             get.Address = userRequest.Address;
-            get.PasswordHash = userRequest.Password?? get.PasswordHash;
+            get.PasswordHash = userRequest.Password ?? get.PasswordHash;
             get.UserName = userRequest.UserName;
-            get.ProfileImage = userRequest.ProfileImage?? get.ProfileImage;
+            get.ProfileImage = userRequest.ProfileImage ?? get.ProfileImage;
 
             if (get == null)
             {
@@ -367,8 +375,32 @@ namespace BikeRental_System3.Services
             {
                 return false;
             }
-              
+        }
 
+        public async Task<UserResponse> ChangeUserRole(string nicNumber, Roles newRole)
+        {
+            var user = await _userRepository.GetUserById(nicNumber);
+            if (user == null)
+            {
+                throw new NotFoundException($"User with NIC Number {nicNumber} was not found.");
+            }
+
+            user.roles = newRole;
+            var updatedUser = await _userRepository.UpdateUser(user);
+
+            return new UserResponse
+            {
+                NicNumber = updatedUser.NicNumber,
+                FirstName = updatedUser.FirstName,
+                LastName = updatedUser.LastName,
+                Email = updatedUser.Email,
+                ContactNo = updatedUser.ContactNo,
+                Address = updatedUser.Address,
+                roles = updatedUser.roles,
+                UserName = updatedUser.UserName,
+                ProfileImage = updatedUser.ProfileImage,
+                IsBlocked = updatedUser.IsBlocked
+            };
         }
 
 

@@ -1,4 +1,3 @@
-
 using BikeRental_System3.Data;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
@@ -9,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace BikeRental_System3
@@ -18,19 +18,41 @@ namespace BikeRental_System3
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            // Add services to the container.
+
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
             });
-
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter your JWT token"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             // Register EmailConfig
             builder.Services.Configure<EmailConfig>(builder.Configuration.GetSection("EmailConfig"));
@@ -64,13 +86,26 @@ namespace BikeRental_System3
             builder.Services.AddScoped<IBikeUnitService, BikeUnitService>();
 
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
-            builder.Services.AddAuthentication()
-                .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = key,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                });
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                  {
+                      options.MapInboundClaims = false;
+                      options.TokenValidationParameters = new TokenValidationParameters
+                      {
+                          ValidateIssuerSigningKey = true,
+                          IssuerSigningKey = key,
+                          ValidateIssuer = true,
+                          ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                          ValidateAudience = true,
+                          ValidAudience = builder.Configuration["Jwt:Audience"],
+                          ValidateLifetime = true,
+                          ClockSkew = TimeSpan.Zero
+                      };
+                  });
+
+            builder.Services.AddAuthorization();
+
+
 
             builder.Services.AddCors(options =>
             {
@@ -101,11 +136,12 @@ namespace BikeRental_System3
 
             app.UseRouting();
 
+            app.UseAuthentication();  // Add this before UseAuthorization
+            app.UseAuthorization();
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.UseAuthorization();
 
             app.MapControllers();
 
