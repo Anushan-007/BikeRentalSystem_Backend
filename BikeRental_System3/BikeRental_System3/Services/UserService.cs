@@ -39,7 +39,7 @@ namespace BikeRental_System3.Services
                 Address = userRequest.Address,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userRequest.Password),
                 AccountCreated = DateTime.Now,
-                roles = (Roles)userRequest.roles,
+                roles = userRequest.roles.HasValue ? (Roles)userRequest.roles : Roles.User,
                 UserName = userRequest.UserName,
                 ProfileImage = userRequest.ProfileImage,
                 IsBlocked = false,

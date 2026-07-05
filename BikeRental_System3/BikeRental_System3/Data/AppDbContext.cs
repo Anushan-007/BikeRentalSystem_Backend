@@ -1,4 +1,4 @@
-﻿using BikeRental_System3.Models;
+using BikeRental_System3.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental_System3.Data
@@ -86,6 +86,8 @@ namespace BikeRental_System3.Data
         public DbSet<User> Users { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
 
-
+        // ── Localization Tables ───────────────────────────────────────────────
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Translation> Translations { get; set; }
     }
 }

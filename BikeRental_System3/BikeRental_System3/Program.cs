@@ -4,6 +4,7 @@ using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
 using BikeRental_System3.Services;
+using BikeRental_System3.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -84,6 +85,11 @@ namespace BikeRental_System3
 
             builder.Services.AddScoped<IBikeUnitRepository, BikeUnitRepository>();
             builder.Services.AddScoped<IBikeUnitService, BikeUnitService>();
+
+            // ── Localization Services ─────────────────────────────────────────
+            // MemoryCache: stores translation bundles for 30 min (Cache-Aside pattern)
+            builder.Services.AddMemoryCache();
+            builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
             builder.Services.AddAuthentication("Bearer")
