@@ -91,6 +91,12 @@ namespace BikeRental_System3
             builder.Services.AddMemoryCache();
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
+            // ── OpenAI Chat Service ───────────────────────────────────────────
+            // AddHttpClient registers a typed HttpClient for OpenAIService.
+            // The DI container will inject a managed HttpClient into OpenAIService
+            // automatically. This avoids socket exhaustion caused by new HttpClient().
+            builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
