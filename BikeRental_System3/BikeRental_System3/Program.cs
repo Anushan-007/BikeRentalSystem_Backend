@@ -1,9 +1,11 @@
+using BikeRental_System3.AI.Interfaces;
+using BikeRental_System3.AI.Services;
 using BikeRental_System3.Data;
 using BikeRental_System3.IRepository;
-using BikeRental_System3.IService;
+using BikeRental_System3.IService;    // other IService interfaces — partial removal in Step 7
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
-using BikeRental_System3.Services;
+using BikeRental_System3.Services;    // other Services — partial removal in Step 7
 using BikeRental_System3.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -96,6 +98,12 @@ namespace BikeRental_System3
             // The DI container will inject a managed HttpClient into OpenAIService
             // automatically. This avoids socket exhaustion caused by new HttpClient().
             builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+
+            // ── Conversation Memory Service (AI module) ───────────────────────
+            // Moved to AI.Services namespace (Phase 3 restructure).
+            // Singleton: ONE instance shared across all HTTP requests.
+            // The ConcurrentDictionary inside must survive across requests.
+            builder.Services.AddSingleton<IConversationMemoryService, ConversationMemoryService>();
 
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
             builder.Services.AddAuthentication("Bearer")

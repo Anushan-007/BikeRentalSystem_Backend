@@ -1,19 +1,33 @@
-using BikeRental_System3.DTOs.Response;
+using BikeRental_System3.Models;
 
 namespace BikeRental_System3.IService
 {
     /// <summary>
     /// Contract for communicating with the OpenAI Chat Completions API.
-    /// ChatController depends on this interface, not on the concrete OpenAIService class.
-    /// This follows the Dependency Inversion Principle (SOLID - D).
+    ///
+    /// Phase 1 signature: GetChatResponseAsync(string userMessage)
+    ///   — only sent the current message, no history.
+    ///
+    /// Phase 2 signature: GetChatResponseAsync(IReadOnlyList&lt;ChatMessage&gt; history)
+    ///   — sends the complete conversation (user + assistant turns).
+    ///   — the service prepends the system prompt and builds the full messages array.
+    ///
+    /// Why return string instead of ChatResponse?
+    ///   The service's job is ONLY to call OpenAI and return the raw reply text.
+    ///   Building ChatResponse (with ConversationId) is the controller's job.
+    ///   Single Responsibility Principle: each class does exactly one thing.
     /// </summary>
     public interface IOpenAIService
     {
         /// <summary>
-        /// Sends the user's message to OpenAI and returns the AI-generated reply.
+        /// Sends the full conversation history to OpenAI and returns the AI reply text.
+        /// The system prompt is added by the service — not by the caller.
         /// </summary>
-        /// <param name="userMessage">The text the user typed in the chat UI.</param>
-        /// <returns>A ChatResponse containing the AI reply text.</returns>
-        Task<ChatResponse> GetChatResponseAsync(string userMessage);
+        /// <param name="conversationHistory">
+        ///   All user and assistant messages in chronological order.
+        ///   The service prepends the system message automatically.
+        /// </param>
+        /// <returns>The plain reply text from OpenAI (not wrapped in any DTO).</returns>
+        Task<string> GetChatResponseAsync(IReadOnlyList<ChatMessage> conversationHistory);
     }
 }

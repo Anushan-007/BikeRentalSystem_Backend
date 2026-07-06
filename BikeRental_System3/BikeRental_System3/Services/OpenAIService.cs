@@ -1,4 +1,3 @@
-using BikeRental_System3.DTOs.Response;
 using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using System.Net.Http.Headers;
@@ -9,51 +8,53 @@ namespace BikeRental_System3.Services
 {
     /// <summary>
     /// Handles all communication with the OpenAI Chat Completions REST API.
+    ///
+    /// Phase 1: received a single string → built 2 messages (system + user).
+    /// Phase 2: receives the full conversation history → builds system + all history.
+    ///
     /// This class is the ONLY place in the backend that knows about OpenAI.
-    /// ChatController calls this via IOpenAIService — it never touches HttpClient directly.
+    /// It returns a plain string (the reply text) — not a DTO.
+    /// Building the response DTO is the controller's responsibility.
     /// </summary>
     public class OpenAIService : IOpenAIService
     {
         // ── Dependencies ──────────────────────────────────────────────────────
 
-        // HttpClient injected by IHttpClientFactory via AddHttpClient<> in Program.cs.
-        // We do NOT create new HttpClient() here — that causes socket exhaustion.
         private readonly HttpClient _httpClient;
-
-        // IConfiguration reads values from appsettings.json at runtime.
-        // We use it to read ApiKey, Model, BaseUrl, TimeoutSeconds.
         private readonly IConfiguration _configuration;
 
         // ── Cached Config Values ──────────────────────────────────────────────
 
-        // Read once in constructor so we don't read config on every request.
         private readonly string _apiKey;
         private readonly string _model;
         private readonly string _baseUrl;
 
-        // JSON serializer options — reused across calls for performance.
+        // Reused across all calls — avoids allocating new options on every request.
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            PropertyNameCaseInsensitive = true  // allows OpenAI's snake_case to map to our PascalCase
+            PropertyNameCaseInsensitive = true
         };
+
+        // The system prompt is fixed — it defines the AI's personality for this app.
+        // Stored as a constant so it's easy to find and update.
+        private const string SystemPrompt =
+            "You are a helpful customer support assistant for Heaven Bike Rental System. " +
+            "Help users with bike availability, rental pricing, booking process, " +
+            "return policies, and general inquiries. " +
+            "Be friendly, concise, and professional. " +
+            "Remember information shared by the user during this conversation. " +
+            "If asked about anything unrelated to bike rentals, politely redirect.";
 
         // ── Constructor ───────────────────────────────────────────────────────
 
-        /// <summary>
-        /// ASP.NET Core DI automatically calls this constructor.
-        /// HttpClient is provided by IHttpClientFactory (registered in Program.cs).
-        /// IConfiguration is always available in DI — no registration needed.
-        /// </summary>
         public OpenAIService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient    = httpClient;
             _configuration = configuration;
 
-            // Read config values once. Throw immediately if ApiKey is missing
-            // so we get a clear startup error instead of a cryptic runtime failure.
             _apiKey = _configuration["OpenAI:ApiKey"]
                       ?? throw new InvalidOperationException(
-                             "OpenAI:ApiKey is missing from appsettings.json. Add your API key.");
+                             "OpenAI:ApiKey is missing from appsettings.json.");
 
             _model   = _configuration["OpenAI:Model"]   ?? "gpt-4o-mini";
             _baseUrl = _configuration["OpenAI:BaseUrl"] ?? "https://api.openai.com/v1/chat/completions";
@@ -62,60 +63,60 @@ namespace BikeRental_System3.Services
         // ── Public Method (implements IOpenAIService) ─────────────────────────
 
         /// <summary>
-        /// Sends the user message to OpenAI and returns the AI reply.
+        /// Builds the OpenAI messages array from the conversation history and calls the API.
+        ///
+        /// Messages sent to OpenAI (Phase 2):
+        ///   [0] system  → SystemPrompt (always first)
+        ///   [1] user    → "Hello"
+        ///   [2] assistant → "Hello! How can I help?"
+        ///   [3] user    → "My name is Anushan"
+        ///   [4] assistant → "Nice to meet you, Anushan!"
+        ///   [5] user    → "What is my name?"   ← current message (already in history)
+        ///
+        /// GPT reads the entire array in order — this is how it "remembers".
         /// </summary>
-        public async Task<ChatResponse> GetChatResponseAsync(string userMessage)
+        public async Task<string> GetChatResponseAsync(IReadOnlyList<ChatMessage> conversationHistory)
         {
-            // ── Step 1: Build the OpenAI request body ─────────────────────────
-            // OpenAI expects a list of messages. We always send two:
-            //   1. "system" → secret instructions that shape the AI's personality
-            //   2. "user"   → the actual message the user typed
-            var openAIRequest = new OpenAIChatRequest
+            // ── Step 1: Build the messages array ──────────────────────────────
+            // Start with the system prompt — always position [0].
+            var openAIMessages = new List<OpenAIMessage>
             {
-                Model      = _model,
-                MaxTokens  = 500,
-                Temperature = 0.7,
-                Messages   = new List<OpenAIMessage>
-                {
-                    new OpenAIMessage
-                    {
-                        Role    = "system",
-                        Content = "You are a helpful customer support assistant for Heaven Bike Rental System. " +
-                                  "Help users with bike availability, rental pricing, booking process, " +
-                                  "return policies, and general inquiries. " +
-                                  "Be friendly, concise, and professional. " +
-                                  "If asked about anything unrelated to bike rentals, politely redirect."
-                    },
-                    new OpenAIMessage
-                    {
-                        Role    = "user",
-                        Content = userMessage
-                    }
-                }
+                new OpenAIMessage { Role = "system", Content = SystemPrompt }
             };
 
-            // ── Step 2: Serialize the request object to JSON ──────────────────
-            // System.Text.Json converts our C# object to the JSON string
-            // that OpenAI expects. [JsonPropertyName] on the model properties
-            // ensures "max_tokens" (not "MaxTokens") appears in the JSON.
+            // Append every message from the conversation history.
+            // conversationHistory already contains the latest user message
+            // (added by ChatController before calling this method).
+            foreach (var msg in conversationHistory)
+            {
+                openAIMessages.Add(new OpenAIMessage
+                {
+                    Role    = msg.Role,     // "user" or "assistant"
+                    Content = msg.Content
+                });
+            }
+
+            // ── Step 2: Build the request object ──────────────────────────────
+            var openAIRequest = new OpenAIChatRequest
+            {
+                Model       = _model,
+                Messages    = openAIMessages,
+                MaxTokens   = 500,
+                Temperature = 0.7
+            };
+
+            // ── Step 3: Serialize to JSON ─────────────────────────────────────
             var jsonBody    = JsonSerializer.Serialize(openAIRequest);
             var httpContent = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-            // ── Step 3: Set the Authorization header ──────────────────────────
-            // OpenAI requires: Authorization: Bearer sk-...
+            // ── Step 4: Set Authorization header ─────────────────────────────
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", _apiKey);
 
-            // ── Step 4: POST to OpenAI ────────────────────────────────────────
-            // PostAsync sends the HTTP request and waits for the full response.
-            // await means this thread is NOT blocked while waiting — other
-            // requests can be processed by the server in the meantime.
+            // ── Step 5: POST to OpenAI ────────────────────────────────────────
             var httpResponse = await _httpClient.PostAsync(_baseUrl, httpContent);
 
-            // ── Step 5: Handle HTTP-level errors ──────────────────────────────
-            // 401 = wrong API key
-            // 429 = rate limit hit
-            // 500 = OpenAI server error
+            // ── Step 6: Handle errors ─────────────────────────────────────────
             if (!httpResponse.IsSuccessStatusCode)
             {
                 var errorBody = await httpResponse.Content.ReadAsStringAsync();
@@ -124,19 +125,15 @@ namespace BikeRental_System3.Services
                     $"({httpResponse.ReasonPhrase}): {errorBody}");
             }
 
-            // ── Step 6: Read and deserialize the response JSON ────────────────
+            // ── Step 7: Deserialize response ──────────────────────────────────
             var responseBody   = await httpResponse.Content.ReadAsStringAsync();
             var openAIResponse = JsonSerializer.Deserialize<OpenAIChatResponse>(
                                      responseBody, _jsonOptions);
 
-            // ── Step 7: Extract the reply text ────────────────────────────────
-            // OpenAI returns: choices[0].message.content
-            // ?. navigates safely — if anything is null, we return a fallback.
-            var replyText = openAIResponse?.Choices?.FirstOrDefault()?.Message?.Content?.Trim()
-                            ?? "I'm sorry, I could not generate a response. Please try again.";
-
-            // ── Step 8: Return our clean ChatResponse DTO ─────────────────────
-            return new ChatResponse { Reply = replyText };
+            // ── Step 8: Extract and return reply text ─────────────────────────
+            // Returns plain string — the controller wraps it in ChatResponse DTO.
+            return openAIResponse?.Choices?.FirstOrDefault()?.Message?.Content?.Trim()
+                   ?? "I'm sorry, I could not generate a response. Please try again.";
         }
     }
 }
