@@ -1,5 +1,67 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+# .NET / ASP.NET Core — repo-level .gitignore
+# Covers ALL projects under BikeRentalSystem_Backend/
 ################################################################################
 
-/BikeRental_System3/.vs
+# Build output — every project's bin/ and obj/ folders
+**/[Bb]in/
+**/[Oo]bj/
+
+# Test results
+**/[Tt]est[Rr]esult*/
+**/[Cc]overage[Rr]eport*/
+*.coverage
+*.coveragexml
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/
+!**/packages/build/
+nuget.config
+
+# .NET SDK
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Log files
+*.log
+*.tlog
+[Ll]ogs/
+
+# PDB / profiler
+*.pdb
+*.psess
+*.vsp
+
+# Publish output
+*.[Pp]ublish.xml
+*.pubxml
+*.publishproj
+
+# SQL Server local DB files
+*.mdf
+*.ldf
+*.ndf
+
+# Secrets / environment (never commit API keys)
+**/appsettings.Production.json
+*.env
+.env.*

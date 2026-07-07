@@ -1,4 +1,5 @@
 using BikeRental_System3.AI.Documents;
+using BikeRental_System3.AI.Embeddings;
 using BikeRental_System3.AI.Interfaces;
 using BikeRental_System3.AI.Services;
 using BikeRental_System3.Data;
@@ -13,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Embeddings;
 using System.Text;
 
 namespace BikeRental_System3
@@ -100,9 +103,10 @@ namespace BikeRental_System3
             //    AddOpenAIChatCompletion registers IChatCompletionService inside
             //    the Kernel so BikeRentalChatChain can resolve it via
             //    _kernel.GetRequiredService<IChatCompletionService>().
-            var openAiApiKey = builder.Configuration["OpenAI:ApiKey"]
+            var openAiApiKey     = builder.Configuration["OpenAI:ApiKey"]
                 ?? throw new InvalidOperationException("OpenAI:ApiKey is missing from appsettings.json");
-            var openAiModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4o-mini";
+            var openAiModel      = builder.Configuration["OpenAI:Model"]          ?? "gpt-4o-mini";
+            var openAiEmbedModel = builder.Configuration["OpenAI:EmbeddingModel"] ?? "text-embedding-3-small";
 
             builder.Services.AddSingleton(sp =>
             {
@@ -110,6 +114,20 @@ namespace BikeRental_System3
                 kernelBuilder.AddOpenAIChatCompletion(openAiModel, openAiApiKey);
                 return kernelBuilder.Build();
             });
+
+            // ── Phase 4.3 — Embedding Service ─────────────────────────────────
+            // ITextEmbeddingGenerationService and OpenAITextEmbeddingGenerationService
+            // are [Experimental] in SK — suppress intentionally (stable in SK 1.x).
+#pragma warning disable SKEXP0001, SKEXP0010
+            builder.Services.AddSingleton<ITextEmbeddingGenerationService>(
+                new OpenAITextEmbeddingGenerationService(openAiEmbedModel, openAiApiKey));
+
+            builder.Services.AddSingleton<IEmbeddingService>(sp =>
+                new OpenAIEmbeddingService(
+                    sp.GetRequiredService<ITextEmbeddingGenerationService>(),
+                    openAiEmbedModel,
+                    sp.GetRequiredService<ILogger<OpenAIEmbeddingService>>()));
+#pragma warning restore SKEXP0001, SKEXP0010
 
             // 2. Prompt template — reads AI/Prompts/bike-rental-system.txt at startup.
             //    Singleton: the file is loaded once; RenderSystemPrompt() is stateless.
