@@ -18,12 +18,23 @@
     </PackageReference>
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.77.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="itext7" Version="8.0.5" />
+    <!-- Required by iText7 v8: cryptography provider for PDF read/write operations -->
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
   </ItemGroup>
 
   <!-- AI Prompt Templates: copy .txt files to output directory on build -->
   <!-- Without this, the published app cannot find bike-rental-system.txt at runtime -->
   <ItemGroup>
     <Content Include="AI\Prompts\*.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- AI Policy Documents: copy PDF files to output directory on build -->
+  <!-- PdfContextProvider reads these from ContentRootPath/AI/Documents/ at runtime -->
+  <ItemGroup>
+    <Content Include="AI\Documents\*.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -1,7 +1,6 @@
 using BikeRental_System3.AI.Interfaces;
 using BikeRental_System3.DTOs.Request;
 using BikeRental_System3.DTOs.Response;
-using BikeRental_System3.IService;    // IOpenAIService — removed in Step 7
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeRental_System3.Controllers
@@ -9,18 +8,18 @@ namespace BikeRental_System3.Controllers
     /// <summary>
     /// Handles AI chat requests from the Angular frontend.
     ///
-    /// Phase 2 responsibilities (controller orchestrates, services execute):
+    /// Phase 3 responsibilities (controller orchestrates, services execute):
     ///   1. Receive and validate the request.
     ///   2. Resolve the conversation (new or existing).
     ///   3. Save the user message to memory.
     ///   4. Retrieve full conversation history.
-    ///   5. Call OpenAIService with the full history.
+    ///   5. Call BikeRentalChatChain (Semantic Kernel pipeline) with the full history.
     ///   6. Save the AI reply to memory.
     ///   7. Return the reply + conversationId to Angular.
     ///
     /// The controller does NOT know about:
     ///   - ConcurrentDictionary (that's ConversationMemoryService)
-    ///   - HttpClient or OpenAI API (that's OpenAIService)
+    ///   - Semantic Kernel or OpenAI API (that's BikeRentalChatChain)
     ///   - JSON serialization (that's ASP.NET Core)
     /// </summary>
     [Route("api/[controller]")]
@@ -29,7 +28,7 @@ namespace BikeRental_System3.Controllers
     {
         // ── Dependencies ──────────────────────────────────────────────────────
 
-        private readonly IOpenAIService _openAIService;
+        private readonly IChatChainService _chatChain;
         private readonly IConversationMemoryService _memoryService;
         private readonly ILogger<ChatController> _logger;
 
@@ -38,14 +37,14 @@ namespace BikeRental_System3.Controllers
         /// <summary>
         /// ASP.NET Core DI injects all three automatically.
         /// IConversationMemoryService resolves to ConversationMemoryService (Singleton).
-        /// IOpenAIService resolves to OpenAIService (managed HttpClient).
+        /// IChatChainService resolves to BikeRentalChatChain (Singleton, SK pipeline).
         /// </summary>
         public ChatController(
-            IOpenAIService openAIService,
+            IChatChainService chatChain,
             IConversationMemoryService memoryService,
             ILogger<ChatController> logger)
         {
-            _openAIService = openAIService;
+            _chatChain     = chatChain;
             _memoryService = memoryService;
             _logger        = logger;
         }
@@ -114,8 +113,8 @@ namespace BikeRental_System3.Controllers
                 // OpenAIService will prepend the system prompt to this list.
                 var history = _memoryService.GetMessages(conversationId);
 
-                // ── Step 5: Call OpenAI with the full history ─────────────────
-                var replyText = await _openAIService.GetChatResponseAsync(history);
+                // ── Step 5: Run the SK chat pipeline with the full history ────
+                var replyText = await _chatChain.InvokeAsync(history);
 
                 // ── Step 6: Save the AI reply to history ──────────────────────
                 // Stored as "assistant" role so GPT sees its own previous replies
@@ -132,7 +131,7 @@ namespace BikeRental_System3.Controllers
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "OpenAI API call failed. ConversationId: {Id}", conversationId);
+                _logger.LogError(ex, "AI API call failed. ConversationId: {Id}", conversationId);
                 return StatusCode(502, new { error = "AI service is unavailable. Please try again later." });
             }
             catch (Exception ex)

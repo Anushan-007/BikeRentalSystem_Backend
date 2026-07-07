@@ -1,17 +1,18 @@
+using BikeRental_System3.AI.Documents;
 using BikeRental_System3.AI.Interfaces;
 using BikeRental_System3.AI.Services;
 using BikeRental_System3.Data;
 using BikeRental_System3.IRepository;
-using BikeRental_System3.IService;    // other IService interfaces — partial removal in Step 7
+using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using BikeRental_System3.Repository;
-using BikeRental_System3.Services;    // other Services — partial removal in Step 7
+using BikeRental_System3.Services;
 using BikeRental_System3.DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.SemanticKernel;
 using System.Text;
 
 namespace BikeRental_System3
@@ -93,16 +94,51 @@ namespace BikeRental_System3
             builder.Services.AddMemoryCache();
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
-            // ── OpenAI Chat Service ───────────────────────────────────────────
-            // AddHttpClient registers a typed HttpClient for OpenAIService.
-            // The DI container will inject a managed HttpClient into OpenAIService
-            // automatically. This avoids socket exhaustion caused by new HttpClient().
-            builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+            // ── AI / Semantic Kernel Services (Phase 3) ───────────────────────
+            //
+            // 1. Semantic Kernel — one Kernel instance wired to GPT-4o-mini.
+            //    AddOpenAIChatCompletion registers IChatCompletionService inside
+            //    the Kernel so BikeRentalChatChain can resolve it via
+            //    _kernel.GetRequiredService<IChatCompletionService>().
+            var openAiApiKey = builder.Configuration["OpenAI:ApiKey"]
+                ?? throw new InvalidOperationException("OpenAI:ApiKey is missing from appsettings.json");
+            var openAiModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4o-mini";
 
-            // ── Conversation Memory Service (AI module) ───────────────────────
-            // Moved to AI.Services namespace (Phase 3 restructure).
-            // Singleton: ONE instance shared across all HTTP requests.
-            // The ConcurrentDictionary inside must survive across requests.
+            builder.Services.AddSingleton(sp =>
+            {
+                var kernelBuilder = Kernel.CreateBuilder();
+                kernelBuilder.AddOpenAIChatCompletion(openAiModel, openAiApiKey);
+                return kernelBuilder.Build();
+            });
+
+            // 2. Prompt template — reads AI/Prompts/bike-rental-system.txt at startup.
+            //    Singleton: the file is loaded once; RenderSystemPrompt() is stateless.
+            builder.Services.AddSingleton<IPromptTemplateService, BikeRentalPromptTemplate>();
+
+            // 3. Context providers — supply the {{context}} injected into the system prompt.
+            //
+            //    PdfDocumentLoader: iText7-based PDF reader (IDocumentLoader).
+            //    DatabaseContextProvider: queries live bike inventory from SQL Server.
+            //    PdfContextProvider: loads FAQ.pdf + Terms.pdf once and caches them.
+            //    CompositeContextProvider: runs both in parallel, combines results.
+            //
+            //    DatabaseContextProvider and PdfContextProvider are registered by their
+            //    CONCRETE TYPE (not as IContextProvider) so CompositeContextProvider can
+            //    inject them directly without circular dependency.
+            //    Only CompositeContextProvider is registered as IContextProvider —
+            //    that is what BikeRentalChatChain resolves.
+            builder.Services.AddSingleton<IDocumentLoader, PdfDocumentLoader>();
+            builder.Services.AddSingleton<DatabaseContextProvider>();
+            builder.Services.AddSingleton<PdfContextProvider>();
+            builder.Services.AddSingleton<IContextProvider, CompositeContextProvider>();
+
+            // 4. Chat chain — the SK pipeline (Prompt → GPT → Response).
+            //    Singleton: all dependencies (Kernel, IPromptTemplateService, IContextProvider)
+            //    are themselves Singletons, so no lifetime mismatch.
+            builder.Services.AddSingleton<IChatChainService, BikeRentalChatChain>();
+
+            // 5. Conversation memory — stores per-session chat history in memory.
+            //    Singleton: ConcurrentDictionary must survive across HTTP requests.
             builder.Services.AddSingleton<IConversationMemoryService, ConversationMemoryService>();
 
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]));
