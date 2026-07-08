@@ -225,9 +225,15 @@ namespace BikeRental_System3
             builder.Services.AddSingleton<PdfContextProvider>();
             builder.Services.AddSingleton<IContextProvider, VectorStoreContextProvider>();
 
-            // 4. Chat chain — the SK pipeline (Prompt → GPT → Response).
-            //    Singleton: all dependencies (Kernel, IPromptTemplateService, IContextProvider)
-            //    are themselves Singletons, so no lifetime mismatch.
+            // 4. Chat chain — Phase 5: RAG + Semantic Kernel Plugin Tool Calling.
+            //    BikeRentalChatChain orchestrates:
+            //      - RAG: IContextProvider → pgvector cosine search (Phase 4.5)
+            //      - Tool Calling: per-request kernel.Clone() + scoped plugin instances
+            //        (BikePlugin, RentalPlugin, BookingPlugin, UserPlugin, PaymentPlugin)
+            //      - FunctionChoiceBehavior.Auto() → GPT decides which tools to call
+            //    Singleton-safe: IServiceScopeFactory and ILoggerFactory are framework
+            //    Singletons injected automatically by ASP.NET Core. Scoped business
+            //    services are resolved per-request inside InvokeAsync via IServiceScopeFactory.
             builder.Services.AddSingleton<IChatChainService, BikeRentalChatChain>();
 
             // 5. Conversation memory — stores per-session chat history in memory.

@@ -1,6 +1,9 @@
-#pragma warning disable SKEXP0010  // OpenAIPromptExecutionSettings is marked experimental in SK
+#pragma warning disable SKEXP0010  // OpenAIPromptExecutionSettings is [Experimental] in SK
+#pragma warning disable SKEXP0001  // FunctionChoiceBehavior is [Experimental] in SK
 
 using BikeRental_System3.AI.Interfaces;
+using BikeRental_System3.AI.Plugins;
+using BikeRental_System3.IService;
 using BikeRental_System3.Models;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -9,191 +12,181 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 namespace BikeRental_System3.AI.Services
 {
     /// <summary>
-    /// LangChain Concept: Concrete Chain implementation.
+    /// Phase 5 — AI pipeline with RAG + Tool Calling (Semantic Kernel Plugins).
     ///
-    /// Python LangChain equivalent:
-    ///   chain = RunnableSequence(
-    ///       prompt_template | chat_model | output_parser
-    ///   )
-    ///   result = chain.invoke({"history": [...], "context": "..."})
+    /// Orchestrates the full request lifecycle on every chat message:
     ///
-    /// This class is the AI pipeline.
-    /// It is the ONLY class in the backend that knows about Semantic Kernel.
-    /// ChatController and ConversationMemoryService are completely isolated from SK.
-    ///
-    /// Pipeline (executed in InvokeAsync on every chat request):
-    ///
-    ///   conversationHistory
-    ///         │
-    ///         ▼
     ///   [1] Extract last user message
-    ///         │
-    ///         ▼
-    ///   [2] IContextProvider.GetContextAsync(userQuery)
-    ///         │ Phase 3: returns ""
-    ///         │ Phase 4: returns retrieved bike data from Vector DB
-    ///         ▼
-    ///   [3] IPromptTemplateService.RenderSystemPrompt(variables)
-    ///         │ Fills {{company}}, {{date}}, {{context}} in the template
-    ///         ▼
-    ///   [4] Build SK ChatHistory
-    ///         │ AddSystemMessage(renderedPrompt)
-    ///         │ + AddUserMessage / AddAssistantMessage for each turn
-    ///         ▼
-    ///   [5] IChatCompletionService.GetChatMessageContentAsync(chatHistory)
-    ///         │ SK sends this to OpenAI GPT-4o-mini
-    ///         ▼
-    ///   [6] Return reply string to ChatController
+    ///   [2] RAG: IContextProvider.GetContextAsync → document context (pgvector)
+    ///   [3] Render system prompt with {{context}}
+    ///   [4] Build SK ChatHistory from conversation memory
+    ///   [5] Clone Kernel + import per-request Plugin instances (scoped services)
+    ///   [6] Call GetChatMessageContentAsync with FunctionChoiceBehavior.Auto()
+    ///       SK automatically handles the tool-call loop:
+    ///         GPT decides which tool → SK executes → result fed back → final answer
+    ///   [7] Return final reply text to ChatController
     ///
-    /// Dependencies:
-    ///   Kernel                  → SK orchestrator (holds IChatCompletionService)
-    ///   IPromptTemplateService  → renders the system prompt
-    ///   IContextProvider        → provides RAG context (empty in Phase 3)
-    ///   ILogger                 → structured logging
+    /// WHY kernel.Clone() per request?
+    ///   Plugins depend on Scoped services (IBikeService, IUserService, etc.).
+    ///   The Singleton Kernel cannot hold Scoped plugin instances permanently.
+    ///   kernel.Clone() creates a new Kernel that SHARES the Singleton AI services
+    ///   (IChatCompletionService stays the same connection) but has an INDEPENDENT
+    ///   plugin collection where fresh scoped plugin instances are attached per request.
+    ///   This is the SK-recommended pattern for ASP.NET Core scoped dependencies.
     ///
-    /// Phase 4 changes (NONE in this file):
-    ///   Only IContextProvider implementation changes (VectorStoreContextProvider).
-    ///   This chain is closed for modification, open for extension.
+    /// WHY IServiceScopeFactory?
+    ///   BikeRentalChatChain is Singleton. Business services are Scoped.
+    ///   Singletons cannot directly hold Scoped services (captive dependency).
+    ///   IServiceScopeFactory is itself Singleton and is the correct way for a
+    ///   Singleton to create a short-lived scope to resolve Scoped dependencies.
+    ///
+    /// FunctionChoiceBehavior.Auto():
+    ///   GPT autonomously decides whether to call a tool, which tool, and when
+    ///   to stop calling tools and return a final answer. Zero if/switch in the
+    ///   chain — all decision making belongs to Semantic Kernel + GPT.
+    ///
+    /// ChatController does NOT change. Conversation memory is preserved.
     /// </summary>
     public class BikeRentalChatChain : IChatChainService
     {
         // ── Dependencies ──────────────────────────────────────────────────────
 
-        private readonly Kernel _kernel;
-        private readonly IPromptTemplateService _promptTemplate;
-        private readonly IContextProvider _contextProvider;
+        private readonly Kernel                      _kernel;
+        private readonly IPromptTemplateService      _promptTemplate;
+        private readonly IContextProvider            _contextProvider;
+        private readonly IServiceScopeFactory        _scopeFactory;
+        private readonly ILoggerFactory              _loggerFactory;
         private readonly ILogger<BikeRentalChatChain> _logger;
-
-        // ── Execution Settings ────────────────────────────────────────────────
-
-        // Controls the OpenAI API call behaviour.
-        // Semantic Kernel passes these to the underlying OpenAI connector.
-        //
-        // MaxTokens   = 500  → ~375 words max reply length (prevents runaway costs)
-        // Temperature = 0.7  → balanced creativity (0.0 = robotic, 1.0 = very creative)
-        //
-        // These are the same values previously set in OpenAIService (Phase 2).
-        private static readonly OpenAIPromptExecutionSettings ExecutionSettings = new()
-        {
-            MaxTokens   = 500,
-            Temperature = 0.7
-        };
 
         // ── Constructor ───────────────────────────────────────────────────────
 
-        /// <summary>
-        /// All dependencies are injected by ASP.NET Core DI.
-        ///
-        /// Kernel           → registered in Program.cs via builder.Services.AddKernel()
-        /// IPromptTemplate  → registered as BikeRentalPromptTemplate (Singleton)
-        /// IContextProvider → registered as ContextProvider (Singleton, Phase 3)
-        /// ILogger          → auto-injected by ASP.NET Core logging
-        /// </summary>
         public BikeRentalChatChain(
-            Kernel kernel,
-            IPromptTemplateService promptTemplate,
-            IContextProvider contextProvider,
+            Kernel                       kernel,
+            IPromptTemplateService       promptTemplate,
+            IContextProvider             contextProvider,
+            IServiceScopeFactory         scopeFactory,
+            ILoggerFactory               loggerFactory,
             ILogger<BikeRentalChatChain> logger)
         {
-            _kernel          = kernel;
-            _promptTemplate  = promptTemplate;
-            _contextProvider = contextProvider;
-            _logger          = logger;
+            _kernel          = kernel          ?? throw new ArgumentNullException(nameof(kernel));
+            _promptTemplate  = promptTemplate  ?? throw new ArgumentNullException(nameof(promptTemplate));
+            _contextProvider = contextProvider ?? throw new ArgumentNullException(nameof(contextProvider));
+            _scopeFactory    = scopeFactory    ?? throw new ArgumentNullException(nameof(scopeFactory));
+            _loggerFactory   = loggerFactory   ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _logger          = logger          ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // ── IChatChainService Implementation ──────────────────────────────────
 
-        /// <summary>
-        /// Runs the full AI pipeline and returns the assistant reply text.
-        ///
-        /// Called by ChatController after:
-        ///   1. The user message has been saved to ConversationMemoryService
-        ///   2. The full history has been retrieved from ConversationMemoryService
-        ///
-        /// The controller only deals with conversation lifecycle.
-        /// This chain only deals with AI response generation.
-        /// Clear separation of responsibilities.
-        /// </summary>
         public async Task<string> InvokeAsync(IReadOnlyList<ChatMessage> conversationHistory)
         {
             // ── Step 1: Extract the last user message ─────────────────────────
-            // IContextProvider needs the current user query to find relevant docs.
-            // We search from the end because the latest user message is at the back
-            // (ChatController adds it just before calling InvokeAsync).
             var lastUserMessage = conversationHistory
-                .LastOrDefault(m => string.Equals(m.Role, "user", StringComparison.OrdinalIgnoreCase))
+                .LastOrDefault(m => string.Equals(
+                    m.Role, "user", StringComparison.OrdinalIgnoreCase))
                 ?.Content ?? string.Empty;
 
             _logger.LogDebug(
-                "BikeRentalChatChain invoked. History length: {Count}. Query: '{Query}'",
+                "BikeRentalChatChain invoked. History: {Count} messages. Query: '{Query}'",
                 conversationHistory.Count,
                 lastUserMessage.Length > 80 ? lastUserMessage[..80] + "..." : lastUserMessage);
 
-            // ── Step 2: Retrieve context via IContextProvider ─────────────────
-            // Phase 3: ContextProvider returns string.Empty immediately.
-            // Phase 4: VectorStoreContextProvider queries the vector DB.
-            //
-            // This is the single extension point for RAG.
-            // BikeRentalChatChain never changes when switching retrieval strategies.
+            // ── Step 2: RAG — retrieve relevant document context ──────────────
+            // VectorStoreContextProvider embeds the query → cosine search pgvector
+            // → returns formatted top-K chunks. Returns "" if nothing relevant found.
             var context = await _contextProvider.GetContextAsync(lastUserMessage);
 
             if (!string.IsNullOrWhiteSpace(context))
-            {
-                _logger.LogDebug("Context retrieved ({Length} chars).", context.Length);
-            }
+                _logger.LogDebug("RAG context retrieved ({Length} chars).", context.Length);
 
-            // ── Step 3: Render the system prompt ──────────────────────────────
-            // BikeRentalPromptTemplate reads AI/Prompts/bike-rental-system.txt
-            // and replaces {{company}}, {{date}}, {{context}} with these values.
+            // ── Step 3: Render system prompt ──────────────────────────────────
             var variables = new Dictionary<string, string>
             {
                 { "company", "Heaven Bike Rental System" },
                 { "date",    DateTime.UtcNow.ToString("yyyy-MM-dd") },
                 { "context", context }
             };
-
             var systemPrompt = _promptTemplate.RenderSystemPrompt(variables);
 
             // ── Step 4: Build SK ChatHistory ──────────────────────────────────
-            // SK ChatHistory is the equivalent of LangChain's ConversationBufferMemory.
-            // It holds the message list in SK's own format (ChatMessageContent objects).
-            //
-            // Structure sent to OpenAI:
-            //   [0] system    → rendered system prompt
-            //   [1] user      → "Hello"                     (first turn)
-            //   [2] assistant → "Hi! How can I help you?"   (first turn reply)
-            //   [3] user      → "What bikes are available?"  (current message)
-            //
-            // GPT reads the entire array in order — this is how it "remembers".
             var chatHistory = new ChatHistory();
             chatHistory.AddSystemMessage(systemPrompt);
 
-            foreach (var message in conversationHistory)
+            foreach (var msg in conversationHistory)
             {
-                if (string.Equals(message.Role, "user", StringComparison.OrdinalIgnoreCase))
-                {
-                    chatHistory.AddUserMessage(message.Content);
-                }
-                else if (string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase))
-                {
-                    chatHistory.AddAssistantMessage(message.Content);
-                }
+                if (string.Equals(msg.Role, "user", StringComparison.OrdinalIgnoreCase))
+                    chatHistory.AddUserMessage(msg.Content);
+                else if (string.Equals(msg.Role, "assistant", StringComparison.OrdinalIgnoreCase))
+                    chatHistory.AddAssistantMessage(msg.Content);
                 // "system" role messages in history are skipped —
-                // the system prompt is always added fresh above (Step 3).
+                // the system prompt is always regenerated fresh above (Step 3).
             }
 
-            // ── Step 5: Call Semantic Kernel ──────────────────────────────────
-            // SK resolves IChatCompletionService from the Kernel's service collection.
-            // The OpenAI connector translates ChatHistory → REST API call → response.
-            // No HttpClient, no JSON, no API key management — SK handles all of it.
-            var chatService = _kernel.GetRequiredService<IChatCompletionService>();
+            // ── Step 5: Clone kernel + import scoped plugin instances ──────────
+            // kernel.Clone() → shares IChatCompletionService (Singleton AI connection)
+            //                → gives independent plugin collection for this request
+            using var scope   = _scopeFactory.CreateScope();
+            var sp             = scope.ServiceProvider;
+            var requestKernel  = _kernel.Clone();
+
+            requestKernel.ImportPluginFromObject(
+                new BikePlugin(
+                    sp.GetRequiredService<IBikeService>(),
+                    sp.GetRequiredService<IBikeUnitService>(),
+                    _loggerFactory.CreateLogger<BikePlugin>()),
+                "Bikes");
+
+            requestKernel.ImportPluginFromObject(
+                new RentalPlugin(
+                    sp.GetRequiredService<IRentalRecordService>(),
+                    sp.GetRequiredService<IRentalRequestService>(),
+                    _loggerFactory.CreateLogger<RentalPlugin>()),
+                "Rentals");
+
+            requestKernel.ImportPluginFromObject(
+                new BookingPlugin(
+                    sp.GetRequiredService<IRentalRequestService>(),
+                    sp.GetRequiredService<IBikeService>(),
+                    _loggerFactory.CreateLogger<BookingPlugin>()),
+                "Bookings");
+
+            requestKernel.ImportPluginFromObject(
+                new UserPlugin(
+                    sp.GetRequiredService<IUserService>(),
+                    _loggerFactory.CreateLogger<UserPlugin>()),
+                "Users");
+
+            requestKernel.ImportPluginFromObject(
+                new PaymentPlugin(
+                    sp.GetRequiredService<IRentalRecordService>(),
+                    _loggerFactory.CreateLogger<PaymentPlugin>()),
+                "Payments");
+
+            _logger.LogDebug(
+                "Request kernel ready with 5 plugin(s): Bikes, Rentals, Bookings, Users, Payments.");
+
+            // ── Step 6: Call SK with automatic function calling ────────────────
+            // FunctionChoiceBehavior.Auto():
+            //   SK sends the full tool schema to OpenAI.
+            //   GPT decides: answer directly OR call a tool.
+            //   If tool: SK executes the KernelFunction, appends result to chat,
+            //            calls GPT again. Repeats until GPT gives a text answer.
+            //   Final text answer is returned from GetChatMessageContentAsync.
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                MaxTokens              = 1500,  // Extra space for tool results + final answer
+                Temperature            = 0.7,
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            };
+
+            var chatService = requestKernel.GetRequiredService<IChatCompletionService>();
 
             var result = await chatService.GetChatMessageContentAsync(
                 chatHistory,
-                ExecutionSettings,
-                _kernel);
+                executionSettings,
+                requestKernel);
 
-            // ── Step 6: Extract and return reply text ─────────────────────────
+            // ── Step 7: Extract and return reply text ─────────────────────────
             var replyText = result.Content?.Trim();
 
             if (string.IsNullOrWhiteSpace(replyText))
@@ -212,4 +205,5 @@ namespace BikeRental_System3.AI.Services
     }
 }
 
+#pragma warning restore SKEXP0001
 #pragma warning restore SKEXP0010
