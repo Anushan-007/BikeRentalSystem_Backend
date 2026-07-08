@@ -1,0 +1,53 @@
+---- ============================================================
+---- Phase 4.4: Vector Store — PostgreSQL Migration Script
+---- Creates the document_vectors table for pgvector storage.
+----
+---- Prerequisites:
+----   PostgreSQL 16
+----   pgvector extension already enabled:
+----     CREATE EXTENSION IF NOT EXISTS vector;
+----
+---- Run this script once against the database configured in
+---- appsettings.json under "VectorDatabase:Database".
+---- ============================================================
+
+---- ── Table ────────────────────────────────────────────────────
+---- Each row represents one DocumentChunk with its 1536-dimensional
+---- embedding vector produced by text-embedding-3-small.
+--CREATE TABLE IF NOT EXISTS document_vectors (
+--    id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+--    document_id     TEXT            NOT NULL,
+--    document_title  TEXT            NOT NULL,
+--    file_name       TEXT            NOT NULL,
+--    chunk_index     INTEGER         NOT NULL,
+--    content         TEXT            NOT NULL,
+--    embedding       vector(1536)    NOT NULL,
+--    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+--);
+
+---- ── Indexes ──────────────────────────────────────────────────
+
+---- Supports DeleteDocumentAsync: fast range delete by document_id.
+--CREATE INDEX IF NOT EXISTS idx_document_vectors_document_id
+--    ON document_vectors (document_id);
+
+---- HNSW index for approximate nearest-neighbour search using cosine distance.
+----
+---- Why HNSW over IVFFlat:
+----   IVFFlat requires a pre-training step (needs rows inserted first) and
+----   produces lower recall at small list counts.  HNSW builds incrementally,
+----   works well from zero rows, and achieves higher recall for typical
+----   document collections (thousands to tens of thousands of chunks).
+----
+---- vector_cosine_ops: optimises the <=> (cosine distance) operator used
+---- in SearchSimilarAsync.
+----
+---- Tune m (connectivity) and ef_construction (build quality) if needed:
+----   m=16, ef_construction=64  → default, balanced speed/recall
+----   m=32, ef_construction=128 → higher recall, slower builds
+--CREATE INDEX IF NOT EXISTS idx_document_vectors_embedding
+--    ON document_vectors USING hnsw (embedding vector_cosine_ops)
+--    WITH (m = 16, ef_construction = 64);
+
+---- ── Verification ─────────────────────────────────────────────
+--SELECT 'document_vectors table and indexes created successfully.' AS migration_status;

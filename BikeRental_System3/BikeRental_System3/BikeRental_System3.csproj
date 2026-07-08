@@ -21,6 +21,10 @@
     <PackageReference Include="itext7" Version="8.0.5" />
     <!-- Required by iText7 v8: cryptography provider for PDF read/write operations -->
     <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
+    <!-- Phase 4.4: PostgreSQL driver with connection pooling -->
+    <PackageReference Include="Npgsql" Version="8.0.5" />
+    <!-- Phase 4.4: pgvector C# client — provides Vector type and UseVector() extension -->
+    <PackageReference Include="Pgvector" Version="0.2.0" />
   </ItemGroup>
 
   <!-- AI Prompt Templates: copy .txt files to output directory on build -->

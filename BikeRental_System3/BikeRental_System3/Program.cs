@@ -1,7 +1,10 @@
+using BikeRental_System3.AI.Chunking;
 using BikeRental_System3.AI.Documents;
 using BikeRental_System3.AI.Embeddings;
 using BikeRental_System3.AI.Interfaces;
+using BikeRental_System3.AI.Retrieval;
 using BikeRental_System3.AI.Services;
+using BikeRental_System3.AI.VectorStore;
 using BikeRental_System3.Data;
 using BikeRental_System3.IRepository;
 using BikeRental_System3.IService;
@@ -16,6 +19,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Embeddings;
+using Npgsql;
+using Pgvector.Npgsql;
 using System.Text;
 
 namespace BikeRental_System3
@@ -129,26 +134,96 @@ namespace BikeRental_System3
                     sp.GetRequiredService<ILogger<OpenAIEmbeddingService>>()));
 #pragma warning restore SKEXP0001, SKEXP0010
 
+            // ── Phase 4.4 — Vector Store (PostgreSQL + pgvector) ─────────────────────
+            //
+            // VectorDatabaseOptions: reads Host/Port/Database/Username/Password/TableName
+            //   from appsettings.json "VectorDatabase" section.
+            //
+            // NpgsqlDataSource: singleton connection pool wired with pgvector type mapping
+            //   via UseVector().  The data source does NOT open a connection at startup;
+            //   actual connections are established on first use, so a missing PostgreSQL
+            //   server will surface only when IVectorStore methods are called.
+            //
+            // IVectorStore → PgVectorStore: SINGLETON (changed in Phase 4.5).
+            //   PgVectorStore is stateless — opens/closes connections per operation.
+            //   Singleton required so VectorStoreContextProvider (also Singleton) can inject it.
+            builder.Services.Configure<VectorDatabaseOptions>(
+                builder.Configuration.GetSection("VectorDatabase"));
+
+            var vectorDbOptions = builder.Configuration
+                .GetSection("VectorDatabase")
+                .Get<VectorDatabaseOptions>() ?? new VectorDatabaseOptions();
+
+            builder.Services.AddSingleton(_ =>
+            {
+                var dataSourceBuilder = new NpgsqlDataSourceBuilder(
+                    vectorDbOptions.BuildConnectionString());
+                dataSourceBuilder.UseVector();
+                return dataSourceBuilder.Build();
+            });
+
+            // Singleton: PgVectorStore is stateless — it opens/closes connections
+            // per operation using the NpgsqlDataSource pool. No request-scoped state.
+            // Singleton lifetime is required because VectorStoreContextProvider
+            // (Phase 4.5) is itself Singleton and injects IVectorStore.
+            builder.Services.AddSingleton<IVectorStore, PgVectorStore>();
+
+            // ── Phase 4.4.1 — Data Ingestion Pipeline ────────────────────────
+            //
+            // IDocumentChunker → FixedSizeChunker: Singleton (pure in-memory, stateless).
+            //   Not registered previously — required now that the ingestion service
+            //   needs to split documents into chunks.
+            //
+            // IDocumentIngestionService → DocumentIngestionService: Scoped.
+            //   Scoped for each HTTP ingestion request. IVectorStore is now Singleton
+            //   (safe to inject into Scoped — narrower lifetime injecting wider is fine).
+            builder.Services.AddSingleton<IDocumentChunker, FixedSizeChunker>();
+            builder.Services.AddScoped<IDocumentIngestionService, DocumentIngestionService>();
+
+            // ── Phase 4.5 — Semantic Retrieval (RAG Query Pipeline) ───────────
+            //
+            // RetrievalOptions: binds TopK / MaximumContextCharacters / MinimumSimilarity
+            //   from appsettings.json "Retrieval" section.
+            //
+            // IQueryEmbeddingService → QueryEmbeddingService (Singleton):
+            //   Converts user questions into float[1536] vectors via SK embedding service.
+            //   Uses SAME model (text-embedding-3-small) as Phase 4.3 ingestion —
+            //   critical for cosine similarity to be meaningful.
+            //
+            // IContextBuilder → ContextBuilder (Singleton):
+            //   Pure text formatter. Turns Top-K VectorDocuments into a structured
+            //   context string for injection into {{context}} in the system prompt.
+            //
+            // IContextProvider → VectorStoreContextProvider (Singleton):
+            //   REPLACES CompositeContextProvider from Phase 3.
+            //   On each chat request: embed query → cosine search → build context.
+            //   BikeRentalChatChain and ChatController do NOT change — they both
+            //   depend on IContextProvider which is still the same interface.
+            //   Open/Closed Principle: system extended, not modified.
+            builder.Services.Configure<RetrievalOptions>(
+                builder.Configuration.GetSection(RetrievalOptions.SectionName));
+
+#pragma warning disable SKEXP0001  // ITextEmbeddingGenerationService is [Experimental]
+            builder.Services.AddSingleton<IQueryEmbeddingService, QueryEmbeddingService>();
+#pragma warning restore SKEXP0001
+
+            builder.Services.AddSingleton<IContextBuilder, ContextBuilder>();
+
             // 2. Prompt template — reads AI/Prompts/bike-rental-system.txt at startup.
             //    Singleton: the file is loaded once; RenderSystemPrompt() is stateless.
             builder.Services.AddSingleton<IPromptTemplateService, BikeRentalPromptTemplate>();
 
-            // 3. Context providers — supply the {{context}} injected into the system prompt.
+            // 3. Context provider — Phase 4.5: VectorStoreContextProvider replaces
+            //    CompositeContextProvider as the IContextProvider implementation.
             //
-            //    PdfDocumentLoader: iText7-based PDF reader (IDocumentLoader).
-            //    DatabaseContextProvider: queries live bike inventory from SQL Server.
-            //    PdfContextProvider: loads FAQ.pdf + Terms.pdf once and caches them.
-            //    CompositeContextProvider: runs both in parallel, combines results.
-            //
-            //    DatabaseContextProvider and PdfContextProvider are registered by their
-            //    CONCRETE TYPE (not as IContextProvider) so CompositeContextProvider can
-            //    inject them directly without circular dependency.
-            //    Only CompositeContextProvider is registered as IContextProvider —
-            //    that is what BikeRentalChatChain resolves.
+            //    Phase 3 providers (DatabaseContextProvider, PdfContextProvider) are
+            //    kept registered by concrete type so they remain available for direct
+            //    injection in future phases if needed. They are no longer wired as
+            //    IContextProvider — VectorStoreContextProvider is the sole implementation.
             builder.Services.AddSingleton<IDocumentLoader, PdfDocumentLoader>();
             builder.Services.AddSingleton<DatabaseContextProvider>();
             builder.Services.AddSingleton<PdfContextProvider>();
-            builder.Services.AddSingleton<IContextProvider, CompositeContextProvider>();
+            builder.Services.AddSingleton<IContextProvider, VectorStoreContextProvider>();
 
             // 4. Chat chain — the SK pipeline (Prompt → GPT → Response).
             //    Singleton: all dependencies (Kernel, IPromptTemplateService, IContextProvider)
